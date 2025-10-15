@@ -90,11 +90,11 @@
 <button id="adminLoginBtn" title="Login Admin">Admin</button>
 
 <div class="container">
-  <h3>Selecione seus números - R$10,00 cada</h3>
+  <p><strong>Selecione seus números - R$10,00 cada</strong></p>
   <div class="numbers" id="numbersGrid"></div>
 
   <div id="userForm">
-    <h4>Seus Dados</h4>
+    <p><strong>Seus Dados</strong></p>
     <input type="text" id="nome" placeholder="Nome completo" />
     <input type="email" id="email" placeholder="E-mail" />
     <input type="text" id="whatsapp" placeholder="WhatsApp" />
@@ -107,7 +107,7 @@
   </div>
 
   <div id="pixArea">
-    <h4>Efetue o pagamento</h4>
+    <p><strong>Efetue o pagamento</strong></p>
     <p><strong>Chave Pix:</strong> <span id="pixKey">---</span></p>
     <p><strong>Recebedor:</strong> <span id="pixName">---</span></p>
     <p><strong>Banco:</strong> <span id="pixBank">---</span></p>
@@ -118,7 +118,7 @@
 
 <!-- Login Admin -->
 <div id="loginPanel" class="container">
-  <h3>Login do Administrador</h3>
+  <p><strong>Login do Administrador</strong></p>
   <input type="text" id="adminUser" placeholder="Usuário" />
   <input type="password" id="adminPass" placeholder="Senha" />
   <button id="loginBtn">Entrar</button>
@@ -129,7 +129,7 @@
   <h2>Painel do Administrador</h2>
 
   <!-- Configurações do Pix -->
-  <h4>Configurações do Pix</h4>
+  <p><strong>Configurações do Pix</strong></p>
   <input id="adminPix" placeholder="Chave Pix" disabled />
   <input id="adminPixName" placeholder="Nome do recebedor" disabled />
   <input id="adminPixBank" placeholder="Banco recebedor" disabled />
@@ -137,13 +137,13 @@
   <button id="saveSettings" disabled>Salvar Configurações</button>
 
   <!-- Trocar Login/Senha do Admin -->
-  <h4>Alterar Login/Senha do Admin</h4>
+  <p><strong>Alterar Login/Senha do Admin</strong></p>
   <input type="text" id="newAdminUser" placeholder="Novo usuário (admin)" />
   <input type="password" id="newAdminPass" placeholder="Nova senha (admin)" />
   <button id="saveNewAdminAccess">Salvar novo acesso</button>
 
   <!-- Status -->
-  <h4>Status</h4>
+  <p><strong>Status</strong></p>
   <p>
     <strong>Vendidos:</strong> <span id="soldCount">0</span> |
     <strong>Reservados:</strong> <span id="reservedCount">0</span> |
@@ -217,7 +217,6 @@
     if (!adminLogged) {
       document.getElementById("loginPanel").style.display = "block";
     } else {
-      // Já logado: mostrar painel admin
       alert("Você já está logado no painel de administração.");
     }
   };
@@ -263,7 +262,6 @@
     storedAdminUser = novoUser;
     storedAdminPass = novaSenha;
     alert("Login e senha do admin atualizados!");
-    // Limpa campos
     document.getElementById("newAdminUser").value = "";
     document.getElementById("newAdminPass").value = "";
   };
@@ -337,7 +335,7 @@
       whatsapp: whatsapp.value,
       cpf: cpf.value,
       numeros: [...selectedNumbers],
-      status: "reservado", // reservado inicialmente
+      status: "reservado",
       pagamentoConfirmado: false,
     });
     localStorage.setItem("reservas", JSON.stringify(reservas));
@@ -476,13 +474,12 @@
     );
   };
 
-  // Atualiza display inicial
+  // Inicializações
   updateSelectionInfo();
   updateNumbersDisplay();
   updateCounts();
   loadPixSettings();
 
-  // Atualizar números após carregar a página para refletir reservas/vendas feitas anteriormente
   window.onload = () => {
     updateNumbersDisplay();
     updateCounts();
@@ -491,496 +488,4 @@
 </script>
 </body>
 </html>
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>RIFA EM PROL DA FORMATURA DO ENZO GABRIEL</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    background: #f4f4f4;
-    margin: 0;
-    padding: 0;
-  }
-  header {
-    background: #1e88e5;
-    color: white;
-    padding: 15px;
-    text-align: center;
-  }
-  .container {
-    max-width: 900px;
-    margin: auto;
-    background: white;
-    padding: 20px;
-    box-shadow: 0 0 10px #ccc;
-  }
-  .numbers {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    justify-content: center;
-  }
-  .number {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 5px;
-    color: white;
-    cursor: pointer;
-  }
-  .available {
-    background: green;
-  }
-  .reserved {
-    background: gray;
-  }
-  .sold {
-    background: red;
-  }
-  #adminPanel,
-  #loginPanel,
-  #pixArea {
-    display: none;
-  }
-  button {
-    background: #1e88e5;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    margin: 5px;
-    cursor: pointer;
-    border-radius: 5px;
-  }
-  input {
-    margin: 5px;
-    padding: 8px;
-    width: 95%;
-  }
-  #adminLoginBtn {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    background: #1e88e5;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    cursor: pointer;
-    border-radius: 5px;
-    z-index: 9999;
-  }
-</style>
-</head>
-<body>
-<header>
-  <h1>RIFA EM PROL DA FORMATURA DO ENZO GABRIEL</h1>
-</header>
 
-<button id="adminLoginBtn" title="Login Admin">Admin</button>
-
-<div class="container">
-  <h3>Selecione seus números - R$10,00 cada</h3>
-  <div class="numbers" id="numbersGrid"></div>
-
-  <div id="userForm">
-    <h4>Seus Dados</h4>
-    <input type="text" id="nome" placeholder="Nome completo" />
-    <input type="email" id="email" placeholder="E-mail" />
-    <input type="text" id="whatsapp" placeholder="WhatsApp" />
-    <input type="text" id="cpf" placeholder="CPF (opcional)" />
-    <p>
-      <strong>Números selecionados: </strong><span id="selectedCount">0</span><br />
-      <strong>Valor total: </strong>R$ <span id="totalPrice">0,00</span>
-    </p>
-    <button id="confirmarBtn">Confirmar Reserva</button>
-  </div>
-
-  <div id="pixArea">
-    <h4>Efetue o pagamento</h4>
-    <p><strong>Chave Pix:</strong> <span id="pixKey">---</span></p>
-    <p><strong>Recebedor:</strong> <span id="pixName">---</span></p>
-    <p><strong>Banco:</strong> <span id="pixBank">---</span></p>
-    <button id="copyPix">Copiar Pix</button>
-    <button id="notifyPaid">Já efetuei o pagamento</button>
-  </div>
-</div>
-
-<!-- Login Admin -->
-<div id="loginPanel" class="container">
-  <h3>Login do Administrador</h3>
-  <input type="text" id="adminUser" placeholder="Usuário" />
-  <input type="password" id="adminPass" placeholder="Senha" />
-  <button id="loginBtn">Entrar</button>
-</div>
-
-<!-- Painel Admin -->
-<div id="adminPanel" class="container">
-  <h2>Painel do Administrador</h2>
-
-  <!-- Configurações do Pix -->
-  <h4>Configurações do Pix</h4>
-  <input id="adminPix" placeholder="Chave Pix" disabled />
-  <input id="adminPixName" placeholder="Nome do recebedor" disabled />
-  <input id="adminPixBank" placeholder="Banco recebedor" disabled />
-  <button id="enableEditPix">Editar</button>
-  <button id="saveSettings" disabled>Salvar Configurações</button>
-
-  <!-- Trocar Login/Senha do Admin -->
-  <h4>Alterar Login/Senha do Admin</h4>
-  <input type="text" id="newAdminUser" placeholder="Novo usuário (admin)" />
-  <input type="password" id="newAdminPass" placeholder="Nova senha (admin)" />
-  <button id="saveNewAdminAccess">Salvar novo acesso</button>
-
-  <!-- Status -->
-  <h4>Status</h4>
-  <p>
-    <strong>Vendidos:</strong> <span id="soldCount">0</span> |
-    <strong>Reservados:</strong> <span id="reservedCount">0</span> |
-    <strong>Disponíveis:</strong> <span id="availableCount">300</span>
-  </p>
-
-  <div id="reservasList"></div>
-</div>
-
-<script>
-  // Variáveis globais
-  let selectedNumbers = [],
-    adminLogged = false;
-
-  // LOGIN ADMIN PADRÃO (armazenado localStorage)
-  let storedAdminUser = localStorage.getItem("adminUser") || "admin";
-  let storedAdminPass = localStorage.getItem("adminPass") || "admin123";
-
-  // LOGIN MASTER (fixo, não altera)
-  const masterUser = "adminlucasmaster";
-  const masterPass = "lucasmaster123";
-
-  // Elementos
-  const grid = document.getElementById("numbersGrid");
-  const selectedCount = document.getElementById("selectedCount");
-  const totalPrice = document.getElementById("totalPrice");
-  const pixArea = document.getElementById("pixArea");
-  const pixKey = document.getElementById("pixKey");
-  const pixName = document.getElementById("pixName");
-  const pixBank = document.getElementById("pixBank");
-  const confirmarBtn = document.getElementById("confirmarBtn");
-  const nome = document.getElementById("nome");
-  const email = document.getElementById("email");
-  const whatsapp = document.getElementById("whatsapp");
-  const cpf = document.getElementById("cpf");
-  const reservasList = document.getElementById("reservasList");
-  const soldCount = document.getElementById("soldCount");
-  const reservedCount = document.getElementById("reservedCount");
-  const availableCount = document.getElementById("availableCount");
-  const adminLoginBtn = document.getElementById("adminLoginBtn");
-
-  // Construir grid dos números
-  for (let i = 1; i <= 300; i++) {
-    const d = document.createElement("div");
-    d.textContent = i;
-    d.classList.add("number", "available");
-    d.onclick = () => toggleNumber(d, i);
-    grid.appendChild(d);
-  }
-
-  // Atualiza seleção e valor
-  function updateSelectionInfo() {
-    selectedCount.textContent = selectedNumbers.length;
-    totalPrice.textContent = (selectedNumbers.length * 10).toFixed(2);
-  }
-
-  function toggleNumber(div, n) {
-    if (div.classList.contains("sold") || div.classList.contains("reserved")) return;
-    if (selectedNumbers.includes(n)) {
-      selectedNumbers = selectedNumbers.filter((x) => x !== n);
-      div.style.border = "";
-    } else {
-      selectedNumbers.push(n);
-      div.style.border = "2px solid #000";
-    }
-    updateSelectionInfo();
-  }
-
-  // Login admin botão mostrar painel login
-  adminLoginBtn.onclick = () => {
-    if (!adminLogged) {
-      document.getElementById("loginPanel").style.display = "block";
-    } else {
-      // Já logado: mostrar painel admin
-      alert("Você já está logado no painel de administração.");
-    }
-  };
-
-  // Botão login admin
-  document.getElementById("loginBtn").onclick = () => {
-    const u = document.getElementById("adminUser").value;
-    const p = document.getElementById("adminPass").value;
-
-    const isMaster = u === masterUser && p === masterPass;
-    const isStoredAdmin = u === storedAdminUser && p === storedAdminPass;
-
-    if (isMaster || isStoredAdmin) {
-      adminLogged = true;
-      document.getElementById("loginPanel").style.display = "none";
-      document.getElementById("adminPanel").style.display = "block";
-      loadPixSettings();
-      updateReservasList();
-      updateCounts();
-      alert(isMaster ? "Login master realizado!" : "Login admin realizado.");
-    } else {
-      alert("Login incorreto");
-    }
-  };
-
-  // Botão salvar novo usuário e senha (apenas admin padrão pode alterar, não master)
-  document.getElementById("saveNewAdminAccess").onclick = () => {
-    const novoUser = document.getElementById("newAdminUser").value.trim();
-    const novaSenha = document.getElementById("newAdminPass").value.trim();
-
-    if (!novoUser || !novaSenha) {
-      alert("Preencha os campos para atualizar.");
-      return;
-    }
-
-    if (novoUser === masterUser) {
-      alert("Você não pode usar o login reservado do master.");
-      return;
-    }
-
-    localStorage.setItem("adminUser", novoUser);
-    localStorage.setItem("adminPass", novaSenha);
-    storedAdminUser = novoUser;
-    storedAdminPass = novaSenha;
-    alert("Login e senha do admin atualizados!");
-    // Limpa campos
-    document.getElementById("newAdminUser").value = "";
-    document.getElementById("newAdminPass").value = "";
-  };
-
-  // Botões Pix: editar e salvar
-  const adminPix = document.getElementById("adminPix");
-  const adminPixName = document.getElementById("adminPixName");
-  const adminPixBank = document.getElementById("adminPixBank");
-  const enableEditPix = document.getElementById("enableEditPix");
-  const saveSettings = document.getElementById("saveSettings");
-
-  enableEditPix.onclick = () => {
-    adminPix.disabled = false;
-    adminPixName.disabled = false;
-    adminPixBank.disabled = false;
-    saveSettings.disabled = false;
-    adminPix.focus();
-  };
-
-  saveSettings.onclick = () => {
-    localStorage.setItem("pix", adminPix.value);
-    localStorage.setItem("pixName", adminPixName.value);
-    localStorage.setItem("pixBank", adminPixBank.value);
-    adminPix.disabled = true;
-    adminPixName.disabled = true;
-    adminPixBank.disabled = true;
-    saveSettings.disabled = true;
-    alert("Configurações Pix salvas!");
-    loadPixSettings();
-  };
-
-  // Carregar configurações pix
-  function loadPixSettings() {
-    adminPix.value = localStorage.getItem("pix") || "";
-    adminPixName.value = localStorage.getItem("pixName") || "";
-    adminPixBank.value = localStorage.getItem("pixBank") || "";
-
-    pixKey.textContent = adminPix.value || "---";
-    pixName.textContent = adminPixName.value || "---";
-    pixBank.textContent = adminPixBank.value || "---";
-  }
-
-  // Confirmar reserva
-  confirmarBtn.onclick = () => {
-    if (selectedNumbers.length === 0) {
-      alert("Selecione pelo menos um número.");
-      return;
-    }
-    if (!nome.value || !email.value || !whatsapp.value) {
-      alert("Preencha nome, email e whatsapp.");
-      return;
-    }
-
-    // Salvar reserva no localStorage
-    const reservas = JSON.parse(localStorage.getItem("reservas") || "[]");
-
-    // Verifica se números selecionados já foram reservados ou vendidos
-    const numerosReservados = reservas.flatMap((r) => r.numeros);
-
-    for (const n of selectedNumbers) {
-      if (numerosReservados.includes(n)) {
-        alert("Algum número selecionado já está reservado ou vendido.");
-        return;
-      }
-    }
-
-    // Adicionar reserva
-    reservas.push({
-      nome: nome.value,
-      email: email.value,
-      whatsapp: whatsapp.value,
-      cpf: cpf.value,
-      numeros: [...selectedNumbers],
-      status: "reservado", // reservado inicialmente
-      pagamentoConfirmado: false,
-    });
-    localStorage.setItem("reservas", JSON.stringify(reservas));
-    alert("Números reservados! Efetue o Pix para confirmar.");
-
-    // Atualiza interface
-    selectedNumbers = [];
-    updateSelectionInfo();
-    nome.value = "";
-    email.value = "";
-    whatsapp.value = "";
-    cpf.value = "";
-
-    updateNumbersDisplay();
-    updateCounts();
-
-    // Mostrar dados Pix para pagamento
-    loadPixSettings();
-    pixArea.style.display = "block";
-  };
-
-  // Atualiza cor dos números na grade conforme status
-  function updateNumbersDisplay() {
-    const reservas = JSON.parse(localStorage.getItem("reservas") || "[]");
-    const vendidos = [];
-    const reservados = [];
-
-    reservas.forEach((r) => {
-      if (r.status === "vendido" || r.pagamentoConfirmado) {
-        vendidos.push(...r.numeros);
-      } else if (r.status === "reservado") {
-        reservados.push(...r.numeros);
-      }
-    });
-
-    // Atualiza classes
-    [...grid.children].forEach((div) => {
-      const n = parseInt(div.textContent);
-      if (vendidos.includes(n)) {
-        div.classList.remove("available", "reserved");
-        div.classList.add("sold");
-        div.style.border = "";
-      } else if (reservados.includes(n)) {
-        div.classList.remove("available", "sold");
-        div.classList.add("reserved");
-        div.style.border = "";
-      } else {
-        div.classList.remove("sold", "reserved");
-        div.classList.add("available");
-        div.style.border = "";
-      }
-    });
-  }
-
-  // Atualizar contadores no painel admin
-  function updateCounts() {
-    const reservas = JSON.parse(localStorage.getItem("reservas") || "[]");
-    let vendidos = 0,
-      reservados = 0;
-
-    reservas.forEach((r) => {
-      if (r.status === "vendido" || r.pagamentoConfirmado) {
-        vendidos += r.numeros.length;
-      } else if (r.status === "reservado") {
-        reservados += r.numeros.length;
-      }
-    });
-
-    soldCount.textContent = vendidos;
-    reservedCount.textContent = reservados;
-    availableCount.textContent = 300 - vendidos - reservados;
-  }
-
-  // Listar reservas no painel admin com opção estorno
-  function updateReservasList() {
-    const reservas = JSON.parse(localStorage.getItem("reservas") || "[]");
-
-    if (reservas.length === 0) {
-      reservasList.innerHTML = "<p>Nenhuma reserva ainda.</p>";
-      return;
-    }
-
-    let html = "<ul>";
-    reservas.forEach((r, i) => {
-      const status = r.pagamentoConfirmado ? "Pago/Confirmado" : "Reservado";
-      html += `<li>
-        <strong>${r.nome}</strong> - Números: ${r.numeros.join(", ")} - Status: ${status}
-        <button onclick="estornar(${i})" ${
-        r.pagamentoConfirmado ? "" : "disabled"
-      }>Estornar Pagamento</button>
-      </li>`;
-    });
-    html += "</ul>";
-    reservasList.innerHTML = html;
-  }
-
-  // Função estornar pagamento
-  window.estornar = function (index) {
-    if (!adminLogged) {
-      alert("Você precisa estar logado para fazer isso.");
-      return;
-    }
-    const reservas = JSON.parse(localStorage.getItem("reservas") || "[]");
-    if (!reservas[index]) return alert("Reserva inválida.");
-
-    if (
-      confirm(
-        `Confirmar estorno do pagamento para ${reservas[index].nome}?\nOs números voltarão a estar disponíveis.`
-      )
-    ) {
-      reservas[index].pagamentoConfirmado = false;
-      reservas[index].status = "reservado";
-      localStorage.setItem("reservas", JSON.stringify(reservas));
-      updateNumbersDisplay();
-      updateCounts();
-      updateReservasList();
-      alert("Estorno realizado.");
-    }
-  };
-
-  // Copiar chave Pix
-  document.getElementById("copyPix").onclick = () => {
-    if (!pixKey.textContent || pixKey.textContent === "---") {
-      alert("Chave Pix não configurada.");
-      return;
-    }
-    navigator.clipboard.writeText(pixKey.textContent).then(() => {
-      alert("Chave Pix copiada para a área de transferência.");
-    });
-  };
-
-  // Cliente confirma que fez o pagamento
-  document.getElementById("notifyPaid").onclick = () => {
-    alert(
-      "Obrigado! Aguarde a confirmação do pagamento. Após confirmado, o status será atualizado."
-    );
-  };
-
-  // Atualiza display inicial
-  updateSelectionInfo();
-  updateNumbersDisplay();
-  updateCounts();
-  loadPixSettings();
-
-  // Atualizar números após carregar a página para refletir reservas/vendas feitas anteriormente
-  window.onload = () => {
-    updateNumbersDisplay();
-    updateCounts();
-    updateReservasList();
-  };
-</script>
-</body>
-</html>
