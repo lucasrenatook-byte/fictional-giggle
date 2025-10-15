@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RIFA EM PROL DA FORMATURA DO ENZO GABRIEL</title>
+<style>
+body {font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 0;}
+header {background: #1e88e5; color: white; padding: 15px; text-align: center;}
+.container {max-width: 900px; margin: auto; background: white; padding: 20px; box-shadow: 0 0 10px #ccc;}
+.numbers {display: flex; flex-wrap: wrap; gap: 5px; justify-content: center;}
+.number {width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; border-radius: 5px; color: white; cursor: pointer;}
+.available {background: green;} .reserved {background: gray;} .sold {background: red;}
+#adminPanel, #loginPanel, #pixArea {display:none;}
+button {background: #1e88e5; color:white; border:none; padding:10px 15px; margin:5px; cursor:pointer; border-radius:5px;}
+input {margin:5px; padding:8px; width:95%;}
+</style>
+</head>
+<body>
+<header><h1>RIFA EM PROL DA FORMATURA DO ENZO GABRIEL</h1></header>
+<div class="container">
+<h3>Selecione seus números - R$10,00 cada</h3>
+<div class="numbers" id="numbersGrid"></div>
+<div id="userForm">
+  <h4>Seus Dados</h4>
+  <input type="text" id="nome" placeholder="Nome completo">
+  <input type="email" id="email" placeholder="E-mail">
+  <input type="text" id="whatsapp" placeholder="WhatsApp">
+  <input type="text" id="cpf" placeholder="CPF (opcional)">
+  <button id="confirmarBtn">Confirmar Reserva</button>
+</div>
+<div id="pixArea">
+  <h4>Efetue o pagamento</h4>
+  <p><strong>Chave Pix:</strong> <span id="pixKey">---</span></p>
+  <p><strong>Recebedor:</strong> <span id="pixName">---</span></p>
+  <p><strong>Banco:</strong> <span id="pixBank">---</span></p>
+  <button id="copyPix">Copiar Pix</button>
+  <button id="notifyPaid">Já efetuei o pagamento</button>
+</div>
+</div>
+<div id="loginPanel" class="container">
+<h3>Login do Administrador</h3>
+<input type="text" id="adminUser" placeholder="Usuário">
+<input type="password" id="adminPass" placeholder="Senha">
+<button id="loginBtn">Entrar</button>
+</div>
+<div id="adminPanel" class="container">
+<h2>Painel do Administrador</h2>
+<h4>Configurações do Pix</h4>
+<input id="adminPix" placeholder="Chave Pix">
+<input id="adminPixName" placeholder="Nome do recebedor">
+<input id="adminPixBank" placeholder="Banco recebedor">
+<input id="adminEmail" placeholder="E-mail do administrador">
+<button id="saveSettings">Salvar Configurações</button>
+<h4>Controle de Reservas</h4>
+<p><strong>Vendidos:</strong> <span id="soldCount">0</span> |
+<strong>Reservados:</strong> <span id="reservedCount">0</span> |
+<strong>Disponíveis:</strong> <span id="availableCount">300</span></p>
+<div id="reservasList"></div>
+</div>
+<script>
+let selectedNumbers = [], adminLogged = false;
+const grid = document.getElementById('numbersGrid');
+for(let i=1;i<=300;i++){const d=document.createElement('div');d.textContent=i;d.classList.add('number','available');
+d.onclick=()=>toggleNumber(d,i);grid.appendChild(d);}
+function toggleNumber(div,n){if(div.classList.contains('sold')||div.classList.contains('reserved'))return;
+if(selectedNumbers.includes(n)){selectedNumbers=selectedNumbers.filter(x=>x!==n);div.style.border='';}
+else{selectedNumbers.push(n);div.style.border='2px solid #000';}}
+document.getElementById('loginBtn').onclick=()=>{const u=document.getElementById('adminUser').value,p=document.getElementById('adminPass').value;
+if(u==='admin'&&p==='admin123'){adminLogged=true;document.getElementById('loginPanel').style.display='none';document.getElementById('adminPanel').style.display='block';updateReservasList();}else alert('Login incorreto');};
+document.getElementById('copyPix').onclick=()=>{navigator.clipboard.writeText(document.getElementById('pixKey').textContent);alert('Chave Pix copiada!');};
+document.getElementById('notifyPaid').onclick=()=>{alert('Obrigado! Sua reserva será confirmada em breve.');selectedNumbers.forEach(n=>{const d=document.querySelectorAll('.number')[n-1];
+d.classList.remove('available');d.classList.add('reserved');d.style.border='';});selectedNumbers=[];document.getElementById('pixArea').style.display='none';};
+document.getElementById('saveSettings').onclick=()=>{localStorage.setItem('pix',adminPix.value);localStorage.setItem('pixName',adminPixName.value);
+localStorage.setItem('pixBank',adminPixBank.value);localStorage.setItem('emailAdmin',adminEmail.value);alert('Configurações salvas!');loadPixSettings();};
+function loadPixSettings(){pixKey.textContent=localStorage.getItem('pix')||'---';pixName.textContent=localStorage.getItem('pixName')||'---';pixBank.textContent=localStorage.getItem('pixBank')||'---';}
+loadPixSettings();
+document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.key.toLowerCase()==='l')loginPanel.style.display='block';});
+function updateCounts(){const all=document.querySelectorAll('.number');let s=0,r=0,a=0;all.forEach(el=>{if(el.classList.contains('sold'))s++;else if(el.classList.contains('reserved'))r++;else a++;});
+soldCount.textContent=s;reservedCount.textContent=r;availableCount.textContent=a;}setInterval(updateCounts,2000);
+function autoExpireReservations(){const saved=JSON.parse(localStorage.getItem('reservations')||'[]');const now=Date.now();
+const valid=saved.filter(r=>now-r.time<12*60*60*1000);localStorage.setItem('reservations',JSON.stringify(valid));}
+setInterval(autoExpireReservations,60000);
+confirmarBtn.addEventListener('click',()=>{if(!nome.value.trim()||!email.value.trim()||!whatsapp.value.trim()||selectedNumbers.length===0)return;
+const reservas=JSON.parse(localStorage.getItem('reservations')||'[]');reservas.push({nome:nome.value,email:email.value,wpp:whatsapp.value,cpf:cpf.value,numeros:selectedNumbers,time:Date.now()});
+localStorage.setItem('reservations',JSON.stringify(reservas));alert('Números reservados! Pague via Pix e confirme.');updateReservasList();});
+function updateReservasList(){if(!adminLogged)return;const list=reservasList;const reservas=JSON.parse(localStorage.getItem('reservations')||'[]');list.innerHTML='';
+reservas.forEach((r,i)=>{const d=document.createElement('div');d.style.border='1px solid #ccc';d.style.padding='10px';d.style.marginBottom='5px';
+d.innerHTML=`<p><strong>${r.nome}</strong> (${r.email})</p><p><strong>WhatsApp:</strong> ${r.wpp}</p><p><strong>Números:</strong> ${r.numeros.join(', ')}</p>
+<p><small>${new Date(r.time).toLocaleString()}</small></p><button onclick="confirmPayment(${i})">Confirmar</button><button onclick="deleteReservation(${i})">Excluir</button>`;
+list.appendChild(d);});}
+function confirmPayment(i){const reservas=JSON.parse(localStorage.getItem('reservations')||'[]');const r=reservas[i];r.numeros.forEach(n=>{const d=document.querySelectorAll('.number')[n-1];
+d.classList.remove('reserved');d.classList.add('sold');});reservas.splice(i,1);localStorage.setItem('reservations',JSON.stringify(reservas));updateReservasList();updateCounts();}
+function deleteReservation(i){const reservas=JSON.parse(localStorage.getItem('reservations')||'[]');reservas.splice(i,1);localStorage.setItem('reservations',JSON.stringify(reservas));
+updateReservasList();updateCounts();}
+setInterval(()=>{if(adminLogged)updateReservasList();},5000);
+</script></body></html>
