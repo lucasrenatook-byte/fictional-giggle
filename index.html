@@ -188,7 +188,6 @@
     grid.appendChild(div);
   }
 
-  // Alternar seleção de números
   function toggleNumber(num, div) {
     if (div.classList.contains("sold") || div.classList.contains("reserved")) return;
 
@@ -266,8 +265,9 @@
     reservas.forEach((r, i) => {
       const li = document.createElement("li");
       li.innerHTML = `<strong>${r.nome}</strong> - Números: ${r.numeros.join(", ")} - 
-      ${r.status} - <button onclick="confirmarPagamento(${i})">Confirmar Pagamento</button> 
-      ${r.status === "reservado" ? `<button onclick="aprovarReserva(${i})">Aprovar</button>` : ""}`;
+      <button onclick="confirmarPagamento(${i})">Confirmar Pagamento</button>
+      <button onclick="recusarReserva(${i})">Recusar</button>
+      <button onclick="fazerEstorno(${i})">Fazer Estorno</button>`;
       lista.appendChild(li);
     });
   }
@@ -280,9 +280,16 @@
     carregarReservasAdmin();
   }
 
-  // Aprovar reserva
-  function aprovarReserva(index) {
-    reservas[index].status = "reservado";
+  // Recusar reserva
+  function recusarReserva(index) {
+    reservas[index].status = "recusado";
+    localStorage.setItem("reservas", JSON.stringify(reservas));
+    carregarReservasAdmin();
+  }
+
+  // Fazer estorno
+  function fazerEstorno(index) {
+    reservas[index].status = "estornado";
     localStorage.setItem("reservas", JSON.stringify(reservas));
     carregarReservasAdmin();
   }
