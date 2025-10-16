@@ -123,8 +123,8 @@
       <p><strong>Chave Pix:</strong> <span id="pixKey">---</span></p>
       <p><strong>Recebedor:</strong> <span id="pixName">---</span></p>
       <p><strong>Banco:</strong> <span id="pixBank">---</span></p>
-      <button id="copyPix">Copiar Pix</button>
-      <button id="notifyPaid">Já efetuei o pagamento</button>
+      <button id="copyPix" onclick="copyPix()">Copiar Pix</button>
+      <button id="notifyPaid" onclick="notifyPayment()">Já efetuei o pagamento</button>
     </div>
     <!-- Painel de Solicitação de Estorno do Cliente -->
     <div id="solicitarEstornoArea" style="margin-top:20px;">
@@ -232,8 +232,6 @@
       location.reload();
     }
 
-    document.getElementById("confirmarBtn").onclick = confirmarReserva;
-
     function solicitarEstorno() {
       const email = prompt("Digite seu e-mail de cadastro para solicitar estorno:");
       if (!email) return;
@@ -288,8 +286,31 @@
       });
     }
 
+    function salvarPix() {
+      const pix = document.getElementById("adminPix").value.trim();
+      const nome = document.getElementById("adminPixName").value.trim();
+      const banco = document.getElementById("adminPixBank").value.trim();
+
+      localStorage.setItem("pix", pix);
+      localStorage.setItem("pixName", nome);
+      localStorage.setItem("pixBank", banco);
+
+      alert("Pix atualizado.");
+    }
+
     function showLoginPanel() {
       document.getElementById("loginPanel").style.display = "block";
+    }
+
+    function copyPix() {
+      const pixKey = document.getElementById("pixKey").innerText;
+      navigator.clipboard.writeText(pixKey).then(() => {
+        alert("Chave Pix copiada!");
+      });
+    }
+
+    function notifyPayment() {
+      alert("Pagamento confirmado. Aguardando validação do administrador.");
     }
 
     function showChangePassword() {
@@ -319,18 +340,6 @@
       }
 
       cancelarAlteracao();
-    }
-
-    function salvarPix() {
-      const pix = document.getElementById("adminPix").value.trim();
-      const nome = document.getElementById("adminPixName").value.trim();
-      const banco = document.getElementById("adminPixBank").value.trim();
-
-      localStorage.setItem("pix", pix);
-      localStorage.setItem("pixName", nome);
-      localStorage.setItem("pixBank", banco);
-
-      alert("Pix atualizado.");
     }
 
     window.onload = () => {
