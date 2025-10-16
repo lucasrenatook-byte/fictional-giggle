@@ -46,6 +46,7 @@
       border-radius: 5px;
       color: white;
       cursor: pointer;
+      text-align: center;
     }
     .available {
       background: green;
@@ -175,8 +176,84 @@
     let adminPassword = "admin123";
     let masterPassword = "master123";
 
-    function showLoginPanel() {
-      document.getElementById("loginPanel").style.display = "block";
+    const grid = document.getElementById("numbersGrid");
+    let selectedNumbers = [];
+
+    // Criar os 400 números
+    for (let i = 1; i <= 400; i++) {
+      const div = document.createElement("div");
+      div.className = "number available";
+      div.innerText = i;
+      div.onclick = () => toggleNumber(i, div);
+      grid.appendChild(div);
+    }
+
+    function toggleNumber(num, div) {
+      if (div.classList.contains("sold") || div.classList.contains("reserved")) return;
+
+      if (selectedNumbers.includes(num)) {
+        selectedNumbers = selectedNumbers.filter(n => n !== num);
+        div.style.border = "";
+      } else {
+        selectedNumbers.push(num);
+        div.style.border = "2px solid black";
+      }
+
+      document.getElementById("selectedCount").innerText = selectedNumbers.length;
+      document.getElementById("totalPrice").innerText = (selectedNumbers.length * 10).toFixed(2);
+    }
+
+    function confirmarReserva() {
+      const nome = document.getElementById("nome").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const whatsapp = document.getElementById("whatsapp").value.trim();
+      const cpf = document.getElementById("cpf").value.trim();
+
+      if (!nome || !email || !whatsapp || selectedNumbers.length === 0) {
+        alert("Preencha os dados e selecione pelo menos um número.");
+        return;
+      }
+
+      const reservas = JSON.parse(localStorage.getItem("reservas") || "[]");
+      reservas.push({
+        nome,
+        email,
+        whatsapp,
+        cpf,
+        numeros: selectedNumbers,
+        status: "reservado",
+        pagamentoConfirmado: false,
+        solicitouEstorno: false
+      });
+
+      localStorage.setItem("reservas", JSON.stringify(reservas));
+      alert("Reserva registrada. Efetue o Pix e aguarde confirmação.");
+      selectedNumbers = [];
+      location.reload();
+    }
+
+    document.getElementById("confirmarBtn").onclick = confirmarReserva;
+
+    function solicitarEstorno() {
+      const email = prompt("Digite seu e-mail de cadastro para solicitar estorno:");
+      if (!email) return;
+
+      const reservas = JSON.parse(localStorage.getItem("reservas") || "[]");
+      let alterou = false;
+
+      reservas.forEach(r => {
+        if (r.email === email && r.pagamentoConfirmado) {
+          r.solicitouEstorno = true;
+          alterou = true;
+        }
+      });
+
+      if (alterou) {
+        localStorage.setItem("reservas", JSON.stringify(reservas));
+        alert("Solicitação de estorno enviada. Aguarde o administrador.");
+      } else {
+        alert("Nenhuma reserva encontrada com este e-mail ou ainda não confirmada.");
+      }
     }
 
     function loginAdmin() {
@@ -211,6 +288,10 @@
       });
     }
 
+    function showLoginPanel() {
+      document.getElementById("loginPanel").style.display = "block";
+    }
+
     function showChangePassword() {
       document.getElementById("changePasswordPanel").style.display = "block";
     }
@@ -228,17 +309,18 @@
         return;
       }
 
-      if (document.getElementById("adminUser").value === "admin") {
+      const user = document.getElementById("adminUser").value;
+      if (user === "admin") {
         adminPassword = newPassword;
         alert("Senha do Admin alterada com sucesso.");
-      } else if (document.getElementById("adminUser").value === "master") {
+      } else if (user === "master") {
         masterPassword = newPassword;
         alert("Senha do Master alterada com sucesso.");
       }
 
       cancelarAlteracao();
     }
-    
+
     function salvarPix() {
       const pix = document.getElementById("adminPix").value.trim();
       const nome = document.getElementById("adminPixName").value.trim();
