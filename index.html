@@ -294,6 +294,38 @@
     carregarReservasAdmin();
   }
 
+  // Função para salvar Pix no localStorage
+  function salvarPix() {
+    const pix = document.getElementById("adminPix").value.trim();
+    const nome = document.getElementById("adminPixName").value.trim();
+    const banco = document.getElementById("adminPixBank").value.trim();
+
+    if (!pix || !nome || !banco) {
+      alert("Preencha todos os campos do Pix.");
+      return;
+    }
+
+    localStorage.setItem("pix", pix);
+    localStorage.setItem("pixName", nome);
+    localStorage.setItem("pixBank", banco);
+
+    alert("Pix atualizado com sucesso.");
+  }
+
+  // Função para copiar chave Pix
+  function copyPix() {
+    const pixKey = document.getElementById("pixKey");
+    navigator.clipboard.writeText(pixKey.innerText).then(() => {
+      alert("Chave Pix copiada para a área de transferência.");
+    });
+  }
+
+  // Função de notificação de pagamento
+  function notifyPayment() {
+    alert("Pagamento notificado. Aguardando confirmação do administrador.");
+  }
+</script>
+<script>
   // Alterar a senha do Admin
   function showChangePassword() {
     document.getElementById("changePasswordPanel").style.display = "block";
@@ -319,31 +351,5 @@
   function cancelarAlteracao() {
     document.getElementById("changePasswordPanel").style.display = "none";
     showLoginPanel();
-  }
-
-  // Função para salvar Pix
-  function salvarPix() {
-    const pix = document.getElementById("adminPix").value.trim();
-    const nome = document.getElementById("adminPixName").value.trim();
-    const banco = document.getElementById("adminPixBank").value.trim();
-
-    localStorage.setItem("pix", pix);
-    localStorage.setItem("pixName", nome);
-    localStorage.setItem("pixBank", banco);
-
-    alert("Pix atualizado.");
-  }
-
-  // Função de copiar chave Pix
-  function copyPix() {
-    const pixKey = document.getElementById("pixKey");
-    navigator.clipboard.writeText(pixKey.innerText).then(() => {
-      alert("Chave Pix copiada para a área de transferência.");
-    });
-  }
-
-  // Marcar pagamento
-  function notifyPayment() {
-    alert("Pagamento notificado. Aguardando confirmação do administrador.");
   }
 </script>
