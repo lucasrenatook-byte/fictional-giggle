@@ -1,3 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RIFA EM PROL DA FORMATURA DO ENZO GABRIEL</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #1e88e5;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      position: relative;
+    }
+    .header-login {
+      position: absolute;
+      right: 20px;
+      top: 10px;
+      color: white;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      box-shadow: 0 0 10px #ccc;
+    }
+    .numbers {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      justify-content: center;
+    }
+    .number {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+      text-align: center;
+    }
+    .available {
+      background: green;
+    }
+    .reserved {
+      background: gray;
+    }
+    .sold {
+      background: red;
+    }
+    button {
+      background: #1e88e5;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      margin: 5px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    input {
+      margin: 5px;
+      padding: 8px;
+      width: 95%;
+    }
+    .alert-message {
+      background-color: #ffcccb;
+      color: #b00000;
+      padding: 10px;
+      font-weight: bold;
+      text-align: center;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>RIFA EM PROL DA FORMATURA DO ENZO GABRIEL</h1>
+    <div class="header-login">
+      <button onclick="showLoginPanel()">Login Admin</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <p><strong>Selecione seus números - R$10,00 cada</strong></p>
+    <div class="numbers" id="numbersGrid"></div>
+
+    <div class="alert-message">
+      TODAS AS RESERVAS SÓ SERÃO ACEITAS MEDIANTE CADASTRO E PIX SEREM DA MESMA TITULARIDADE. FIQUE ATENTO. SORTEIO SERÁ REALIZADO APÓS TODAS AS COTAS VENDIDAS
+    </div>
+
+    <div id="userForm">
+      <p><strong>Seus Dados</strong></p>
+      <input type="text" id="nome" placeholder="Nome completo" />
+      <input type="email" id="email" placeholder="E-mail" />
+      <input type="text" id="whatsapp" placeholder="WhatsApp" />
+      <input type="text" id="cpf" placeholder="CPF (opcional)" />
+      <p>
+        <strong>Números selecionados: </strong><span id="selectedCount">0</span><br />
+        <strong>Valor total: </strong>R$ <span id="totalPrice">0,00</span>
+      </p>
+      <button id="confirmarBtn" onclick="confirmarReserva()">Confirmar Reserva</button>
+    </div>
+
+    <div id="pixArea" style="display:none;">
+      <p><strong>Efetue o pagamento</strong></p>
+      <p><strong>Chave Pix:</strong> <span id="pixKey">---</span></p>
+      <p><strong>Recebedor:</strong> <span id="pixName">---</span></p>
+      <p><strong>Banco:</strong> <span id="pixBank">---</span></p>
+      <button id="copyPix" onclick="copyPix()">Copiar Pix</button>
+      <button id="notifyPaid" onclick="notifyPayment()">Já efetuei o pagamento</button>
+    </div>
+  </div>
+
+  <!-- Login Admin -->
+  <div class="container" id="loginPanel" style="display: none;">
+    <h2>Login do Administrador</h2>
+    <input type="text" id="adminUser" placeholder="Usuário" />
+    <input type="password" id="adminPass" placeholder="Senha" />
+    <button onclick="loginAdmin()">Entrar</button>
+    <button onclick="showChangePassword()">Alterar Senha</button>
+  </div>
+
+  <!-- Painel Admin -->
+  <div class="container" id="adminPanel" style="display: none;">
+    <h2>Painel do Administrador</h2>
+
+    <p><strong>Chave Pix:</strong> <input id="adminPix" placeholder="Chave Pix" /></p>
+    <p><strong>Nome:</strong> <input id="adminPixName" placeholder="Nome do recebedor" /></p>
+    <p><strong>Banco:</strong> <input id="adminPixBank" placeholder="Banco" /></p>
+    <button onclick="salvarPix()">Salvar Pix</button>
+
+    <h3>Reservas</h3>
+    <ul id="listaReservas"></ul>
+    <button onclick="showChangePassword()">Alterar Senha Admin</button>
+  </div>
+
+  <!-- Alteração de Senha -->
+  <div class="container" id="changePasswordPanel" style="display: none;">
+    <h2>Alterar Senha</h2>
+    <input type="password" id="newPassword" placeholder="Nova Senha" />
+    <input type="password" id="confirmPassword" placeholder="Confirme a Senha" />
+    <button onclick="alterarSenha()">Alterar Senha</button>
+    <button onclick="cancelarAlteracao()">Cancelar</button>
+  </div>
+
+  <footer>
+    QUALQUER DÚVIDA ENTRAR EM CONTATO NO WHATSAPP NO LINK A SEGUIR:  
+    <a href="https://wa.me/+5581989681443" target="_blank">
+      https://wa.me/+5581989681443
+    </a>
+  </footer>
+</body>
+</html>
 <script>
   let adminPassword = "admin123";
   let masterPassword = "master123";
@@ -69,7 +239,13 @@
     location.reload();
   }
 
-  // Admin login
+  // Exibir painel de login
+  function showLoginPanel() {
+    document.getElementById("loginPanel").style.display = "block";
+    document.getElementById("adminPanel").style.display = "none";
+  }
+
+  // Login Admin
   function loginAdmin() {
     const user = document.getElementById("adminUser").value;
     const pass = document.getElementById("adminPass").value;
@@ -109,5 +285,58 @@
     reservas[index].status = "reservado";
     localStorage.setItem("reservas", JSON.stringify(reservas));
     carregarReservasAdmin();
+  }
+
+  // Alterar a senha do Admin
+  function showChangePassword() {
+    document.getElementById("changePasswordPanel").style.display = "block";
+    document.getElementById("adminPanel").style.display = "none";
+  }
+
+  function alterarSenha() {
+    const newPassword = document.getElementById("newPassword").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+
+    if (newPassword !== confirmPassword) {
+      alert("As senhas não coincidem.");
+      return;
+    }
+
+    adminPassword = newPassword;
+    localStorage.setItem("adminPassword", newPassword);
+    alert("Senha alterada com sucesso.");
+    document.getElementById("changePasswordPanel").style.display = "none";
+    showLoginPanel();
+  }
+
+  function cancelarAlteracao() {
+    document.getElementById("changePasswordPanel").style.display = "none";
+    showLoginPanel();
+  }
+
+  // Função para salvar Pix
+  function salvarPix() {
+    const pix = document.getElementById("adminPix").value.trim();
+    const nome = document.getElementById("adminPixName").value.trim();
+    const banco = document.getElementById("adminPixBank").value.trim();
+
+    localStorage.setItem("pix", pix);
+    localStorage.setItem("pixName", nome);
+    localStorage.setItem("pixBank", banco);
+
+    alert("Pix atualizado.");
+  }
+
+  // Função de copiar chave Pix
+  function copyPix() {
+    const pixKey = document.getElementById("pixKey");
+    navigator.clipboard.writeText(pixKey.innerText).then(() => {
+      alert("Chave Pix copiada para a área de transferência.");
+    });
+  }
+
+  // Marcar pagamento
+  function notifyPayment() {
+    alert("Pagamento notificado. Aguardando confirmação do administrador.");
   }
 </script>
