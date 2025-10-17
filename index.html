@@ -1,355 +1,401 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>RIFA EM PROL DA FORMATURA DO ENZO GABRIEL</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rifa - Formatura do Enzo Gabriel</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      margin: 0;
-      padding: 0;
+    :root{
+      --primary:#1e88e5; --bg:#f4f4f4; --card:#fff; --success:#2e7d32;
+      --reserved:#757575; --sold:#d32f2f; --glass-bg: rgba(0,0,0,0.55);
     }
-    header {
-      background: #1e88e5;
-      color: white;
-      padding: 15px;
-      text-align: center;
-      position: relative;
-    }
-    .header-login {
-      position: absolute;
-      right: 20px;
-      top: 10px;
-      color: white;
-    }
-    .container {
-      max-width: 900px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      box-shadow: 0 0 10px #ccc;
-    }
-    .numbers {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-      justify-content: center;
-    }
-    .number {
-      width: 40px;
-      height: 40px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border-radius: 5px;
-      color: white;
-      cursor: pointer;
-      text-align: center;
-    }
-    .available {
-      background: green;
-    }
-    .reserved {
-      background: gray;
-    }
-    .sold {
-      background: red;
-    }
-    button {
-      background: #1e88e5;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      margin: 5px;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-    input {
-      margin: 5px;
-      padding: 8px;
-      width: 95%;
-    }
-    .alert-message {
-      background-color: #ffcccb;
-      color: #b00000;
-      padding: 10px;
-      font-weight: bold;
-      text-align: center;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-    }
-    footer {
-      text-align: center;
-      padding: 20px;
-      font-weight: bold;
-      text-transform: uppercase;
-      color: #000;
-    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:#111;}
+    header{background:var(--primary);color:#fff;padding:14px 20px;position:relative;text-align:center;}
+    .header-login{position:absolute;right:16px;top:8px;}
+    .container{max-width:980px;margin:18px auto;background:var(--card);padding:18px;border-radius:8px;box-shadow:0 6px 22px rgba(0,0,0,0.08);}
+    .numbers{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:12px 0 18px;}
+    .number{width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:6px;color:#fff;cursor:pointer;user-select:none;font-weight:600;}
+    .available{ background:var(--success); }
+    .reserved{ background:var(--reserved); cursor:not-allowed; }
+    .sold{ background:var(--sold); cursor:not-allowed; }
+    .user-row{ display:flex; gap:10px; flex-wrap:wrap; }
+    .user-row input[type="text"], .user-row input[type="email"]{ flex:1 1 220px; padding:8px; border:1px solid #ddd; border-radius:6px; }
+    .user-actions{ margin-top:8px; }
+    .alert-message{ background:#fff3f3; border-left:4px solid #d32f2f; color:#4a0808; padding:10px; border-radius:6px; margin:10px 0; font-weight:700; text-transform:uppercase; font-size:13px; }
+    .pix-modal { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0.98); min-width: 320px; max-width: 420px; background: var(--card); border-radius: 10px; box-shadow: 0 18px 50px rgba(0,0,0,0.45); z-index: 2001; padding: 18px; display: none; transition: transform .14s ease, opacity .12s ease; }
+    .pix-modal.show{ display:block; transform: translate(-50%, -50%) scale(1); }
+    .pix-row{ margin:10px 0; word-break:break-all; }
+    .pix-actions{ display:flex; gap:8px; justify-content:flex-end; margin-top:10px; }
+    .pix-overlay{ position:fixed; inset:0; background:var(--glass-bg); z-index:2000; display:none; }
+    .pix-overlay.show{ display:block; }
+    .admin-header{ display:flex; gap:10px; align-items:center; justify-content:space-between; margin-bottom:14px; }
+    .tabs{ display:flex; gap:8px; flex-wrap:wrap; }
+    .tab-btn{ padding:8px 12px; border-radius:8px; background:#f3f6fb; border:1px solid #e6eef9; cursor:pointer; font-weight:700; }
+    .tab-btn.active{ background:var(--primary); color:#fff; border-color:var(--primary); }
+    .admin-controls{ display:flex; gap:8px; align-items:center; }
+    .search-box input{ padding:8px; border-radius:8px; border:1px solid #ddd; width:340px; }
+    .reservas-list{ margin-top:12px; max-height:360px; overflow:auto; padding-right:8px; }
+    .res-item{ padding:10px; border:1px solid #eee; border-radius:8px; margin-bottom:8px; display:flex; justify-content:space-between; gap:12px; align-items:center; }
+    .res-main{ font-size:14px; }
+    .res-actions button{ margin-left:6px; }
+    .export-btn{ padding:8px 10px; border-radius:8px; background:#2e7d32; color:#fff; border:none; cursor:pointer; }
+    @media (max-width:720px){ .search-box input{ width:100%; } .admin-header{ flex-direction:column; align-items:flex-start; gap:10px; } }
   </style>
 </head>
 <body>
   <header>
-    <h1>RIFA EM PROL DA FORMATURA DO ENZO GABRIEL</h1>
-    <div class="header-login">
-      <button onclick="showLoginPanel()">Login Admin</button>
-    </div>
+    <h1>RIFA — FORMATURA DO ENZO GABRIEL</h1>
+    <div class="header-login"><button onclick="showLoginPanel()">Login Admin</button></div>
   </header>
 
-  <div class="container">
+  <!-- PUBLIC -->
+  <main class="container" id="publicArea">
     <p><strong>Selecione seus números - R$10,00 cada</strong></p>
     <div class="numbers" id="numbersGrid"></div>
-
-    <div class="alert-message">
-      TODAS AS RESERVAS SÓ SERÃO ACEITAS MEDIANTE CADASTRO E PIX SEREM DA MESMA TITULARIDADE. FIQUE ATENTO. SORTEIO SERÁ REALIZADO APÓS TODAS AS COTAS VENDIDAS
-    </div>
+    <div class="alert-message">TODAS AS RESERVAS SÓ SERÃO ACEITAS MEDIANTE CADASTRO E PIX SEREM DA MESMA TITULARIDADE.</div>
 
     <div id="userForm">
-      <p><strong>Seus Dados</strong></p>
-      <input type="text" id="nome" placeholder="Nome completo" />
-      <input type="email" id="email" placeholder="E-mail" />
-      <input type="text" id="whatsapp" placeholder="WhatsApp" />
-      <input type="text" id="cpf" placeholder="CPF (opcional)" />
-      <p>
-        <strong>Números selecionados: </strong><span id="selectedCount">0</span><br />
+      <div class="user-row">
+        <input type="text" id="nome" placeholder="Nome completo" />
+        <input type="email" id="email" placeholder="E-mail" />
+        <input type="text" id="whatsapp" placeholder="WhatsApp (somente números)" />
+        <input type="text" id="cpf" placeholder="CPF (opcional)" />
+      </div>
+
+      <p style="margin-top:10px;">
+        <strong>Números selecionados: </strong><span id="selectedCount">0</span>
+        &nbsp;&nbsp;
         <strong>Valor total: </strong>R$ <span id="totalPrice">0,00</span>
       </p>
-      <button id="confirmarBtn" onclick="confirmarReserva()">Confirmar Reserva</button>
-    </div>
 
-    <div id="pixArea" style="display:none;">
-      <p><strong>Efetue o pagamento</strong></p>
-      <p><strong>Chave Pix:</strong> <span id="pixKey">---</span></p>
-      <p><strong>Recebedor:</strong> <span id="pixName">---</span></p>
-      <p><strong>Banco:</strong> <span id="pixBank">---</span></p>
-      <button id="copyPix" onclick="copyPix()">Copiar Pix</button>
-      <button id="notifyPaid" onclick="notifyPayment()">Já efetuei o pagamento</button>
+      <div class="user-actions">
+        <button id="confirmarBtn" onclick="confirmarReserva()">Confirmar Reserva</button>
+      </div>
     </div>
+  </main>
+
+  <!-- PIX POPUP -->
+  <div class="pix-overlay" id="pixOverlay" onclick="closePixPopup()"></div>
+  <div class="pix-modal" id="pixPopup" role="dialog" aria-modal="true" aria-labelledby="pixTitle">
+    <h3 id="pixTitle">Chave Pix para pagamento</h3>
+    <div class="pix-row">
+      <div><strong>Chave:</strong></div>
+      <div id="pixKeyFloating" style="margin-top:6px;font-weight:700;font-size:16px">---</div>
+      <div style="margin-top:8px;"><small id="pixNameFloating">---</small> • <small id="pixBankFloating">---</small></div>
+    </div>
+    <div style="margin-top:10px;font-size:14px;"><em>Após copiar e pagar, clique em "Já fiz o pagamento".</em></div>
+    <div class="pix-actions">
+      <button onclick="copyPixFloating()">Copiar Pix</button>
+      <button onclick="notifyPaymentFloating()">Já fiz o pagamento</button>
+      <button onclick="closePixPopup()" style="background:#eee;color:#111;border:1px solid #ddd;">Fechar</button>
+    </div>
+    <div id="pixThanks" style="display:none;margin-top:12px;font-weight:700;color:var(--success);">Boa sorte e obrigado por contribuir com essa causa 💚</div>
   </div>
 
-  <!-- Login Admin -->
-  <div class="container" id="loginPanel" style="display: none;">
+  <!-- LOGIN ADMIN -->
+  <section class="container" id="loginPanel" style="display:none;">
     <h2>Login do Administrador</h2>
-    <input type="text" id="adminUser" placeholder="Usuário" />
-    <input type="password" id="adminPass" placeholder="Senha" />
-    <button onclick="loginAdmin()">Entrar</button>
-    <button onclick="showChangePassword()">Alterar Senha</button>
-  </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <input type="text" id="adminUser" placeholder="Usuário" />
+      <input type="password" id="adminPass" placeholder="Senha" />
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button onclick="loginAdmin()">Entrar</button>
+        <button onclick="cancelLogin()">Cancelar</button>
+      </div>
+    </div>
+  </section>
 
-  <!-- Painel Admin -->
-  <div class="container" id="adminPanel" style="display: none;">
-    <h2>Painel do Administrador</h2>
+  <!-- ADMIN -->
+  <section class="container" id="adminPanel" style="display:none;">
+    <div class="admin-header">
+      <div class="tabs" role="tablist" aria-label="Abas de reservas">
+        <button class="tab-btn active" data-tab="espera" onclick="switchTab('espera')">Em Espera</button>
+        <button class="tab-btn" data-tab="pagas" onclick="switchTab('pagas')">Pagas</button>
+        <button class="tab-btn" data-tab="estornadas" onclick="switchTab('estornadas')">Estornadas</button>
+        <button class="tab-btn" data-tab="recusadas" onclick="switchTab('recusadas')">Recusadas</button>
+      </div>
 
-    <p><strong>Chave Pix:</strong> <input id="adminPix" placeholder="Chave Pix" /></p>
-    <p><strong>Nome:</strong> <input id="adminPixName" placeholder="Nome do recebedor" /></p>
-    <p><strong>Banco:</strong> <input id="adminPixBank" placeholder="Banco" /></p>
-    <button onclick="salvarPix()">Salvar Pix</button>
+      <div class="admin-controls">
+        <div class="search-box"><input type="text" id="buscaReserva" placeholder="Buscar por nome, e-mail, WhatsApp ou número..." onkeyup="filtrarReservas()" /></div>
+        <div style="display:flex;gap:8px;align-items:center;"><button class="export-btn" onclick="exportarExcel()">📤 Exportar para Excel</button></div>
+      </div>
+    </div>
 
-    <h3>Reservas</h3>
-    <ul id="listaReservas"></ul>
-    <button onclick="showChangePassword()">Alterar Senha Admin</button>
-  </div>
+    <div style="margin-top:12px;">
+      <p style="margin:8px 0;"><strong>Configuração Pix</strong></p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <input type="text" id="adminPix" placeholder="Chave Pix" style="width:280px" />
+        <input type="text" id="adminPixName" placeholder="Nome do recebedor" style="width:220px" />
+        <input type="text" id="adminPixBank" placeholder="Banco" style="width:160px" />
+        <button onclick="salvarPix()">Salvar Pix</button>
+      </div>
+    </div>
 
-  <!-- Alteração de Senha -->
-  <div class="container" id="changePasswordPanel" style="display: none;">
-    <h2>Alterar Senha</h2>
-    <input type="password" id="newPassword" placeholder="Nova Senha" />
-    <input type="password" id="confirmPassword" placeholder="Confirme a Senha" />
-    <button onclick="alterarSenha()">Alterar Senha</button>
-    <button onclick="cancelarAlteracao()">Cancelar</button>
-  </div>
+    <div class="reservas-list" id="listaReservas"></div>
+  </section>
 
-  <footer>
-    QUALQUER DÚVIDA ENTRAR EM CONTATO NO WHATSAPP NO LINK A SEGUIR:  
-    <a href="https://wa.me/+5581989681443" target="_blank">
-      https://wa.me/+5581989681443
-    </a>
-  </footer>
+  <footer style="text-align:center;margin:24px 0;font-weight:700;">Dúvidas? <a href="https://wa.me/+5581989681443" target="_blank">WhatsApp</a></footer>
+
+  <!-- SCRIPTS -->
+  <script>
+  /* Versão unificada: inicializa de forma robusta (init) */
+  (function(){
+    // elementos
+    const gridEl = document.getElementById('numbersGrid');
+    const selectedCountEl = document.getElementById('selectedCount');
+    const totalPriceEl = document.getElementById('totalPrice');
+
+    // dados
+    let selectedNumbers = [];
+    let reservas = JSON.parse(localStorage.getItem('reservas') || '[]');
+    reservas = reservas.map(r => r.id ? r : { ...r, id: 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2) });
+    localStorage.setItem('reservas', JSON.stringify(reservas));
+
+    let pix = localStorage.getItem('pix') || '';
+    let pixName = localStorage.getItem('pixName') || '';
+    let pixBank = localStorage.getItem('pixBank') || '';
+
+    let activeTab = 'espera';
+    let lastReservaId = sessionStorage.getItem('lastReservaId') || null;
+
+    // helpers
+    function saveReservas(){ localStorage.setItem('reservas', JSON.stringify(reservas)); }
+
+    function createNumbers() {
+      if (!gridEl) return;
+      gridEl.innerHTML = '';
+      for (let i = 1; i <= 400; i++) {
+        const div = document.createElement('div');
+        div.className = 'number available';
+        div.innerText = i;
+        div.dataset.num = i;
+        div.onclick = () => toggleNumber(i, div);
+        gridEl.appendChild(div);
+      }
+    }
+
+    function atualizarGrid() {
+      const allDivs = gridEl.getElementsByClassName('number');
+      for (let div of allDivs) { div.className = 'number available'; div.style.border = ''; }
+      for (let r of reservas) {
+        for (let num of r.numeros) {
+          const div = allDivs[num - 1];
+          if (!div) continue;
+          if (r.status === 'reservado') div.className = 'number reserved';
+          else if (r.status === 'pago') div.className = 'number sold';
+          else if (r.status === 'estornado' || r.status === 'recusado') div.className = 'number available';
+        }
+      }
+    }
+
+    function toggleNumber(num, div) {
+      if (!div) return;
+      if (div.classList.contains('reserved') || div.classList.contains('sold')) return;
+      if (selectedNumbers.includes(num)) {
+        selectedNumbers = selectedNumbers.filter(n => n !== num);
+        div.style.border = '';
+      } else {
+        selectedNumbers.push(num);
+        div.style.border = '2px solid #111';
+      }
+      selectedCountEl.innerText = selectedNumbers.length;
+      totalPriceEl.innerText = (selectedNumbers.length * 10).toFixed(2);
+    }
+
+    function confirmarReserva() {
+      const nome = (document.getElementById('nome')||{}).value?.trim();
+      const email = (document.getElementById('email')||{}).value?.trim();
+      const whatsapp = (document.getElementById('whatsapp')||{}).value?.trim();
+      const cpf = (document.getElementById('cpf')||{}).value?.trim();
+      if (!nome || !email || !whatsapp || selectedNumbers.length === 0) { alert('Preencha todos os campos e selecione ao menos 1 número.'); return; }
+      const id = 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+      const nova = { id, nome, email, whatsapp, cpf, numeros: [...selectedNumbers].sort((a,b)=>a-b), status:'reservado', pagamentoConfirmado:false, paymentNotified:false, createdAt:new Date().toISOString() };
+      reservas.push(nova); saveReservas();
+      sessionStorage.setItem('lastReservaId', id); lastReservaId = id;
+      // pinta selecionados
+      for (let n of selectedNumbers) {
+        const div = gridEl.getElementsByClassName('number')[n-1];
+        if (div) { div.className = 'number reserved'; div.style.border = ''; }
+      }
+      selectedNumbers = []; selectedCountEl.innerText = '0'; totalPriceEl.innerText = '0,00';
+      // mostrar pix popup se houver
+      if (pix) showPixPopupForLastReservation(); else alert('Reserva registrada! Aguarde o administrador cadastrar a chave Pix.');
+      alert('Reserva registrada com sucesso! Confira o popup de pagamento.');
+      carregarReservasAdmin();
+    }
+
+    function showPixPopupForLastReservation() {
+      document.getElementById('pixKeyFloating').innerText = pix || '---';
+      document.getElementById('pixNameFloating').innerText = pixName || '---';
+      document.getElementById('pixBankFloating').innerText = pixBank || '---';
+      document.getElementById('pixOverlay').classList.add('show');
+      document.getElementById('pixPopup').classList.add('show');
+      document.getElementById('pixThanks').style.display = 'none';
+    }
+    function closePixPopup(){ document.getElementById('pixOverlay').classList.remove('show'); document.getElementById('pixPopup').classList.remove('show'); }
+    function copyPixFloating(){
+      const chave = document.getElementById('pixKeyFloating').innerText;
+      if (!chave || chave === '---') { alert('Chave Pix não configurada.'); return; }
+      navigator.clipboard.writeText(chave).then(()=>alert('Chave Pix copiada!')).catch(()=>alert('Não foi possível copiar automaticamente.'));
+    }
+    function notifyPaymentFloating(){
+      const id = sessionStorage.getItem('lastReservaId');
+      if (!id) { alert('Reserva não identificada nesta sessão.'); return; }
+      const idx = reservas.findIndex(r => r.id === id);
+      if (idx === -1) { alert('Reserva não encontrada.'); return; }
+      reservas[idx].paymentNotified = true; reservas[idx].notifiedAt = new Date().toISOString(); saveReservas();
+      document.getElementById('pixThanks').style.display = 'block';
+      setTimeout(()=>closePixPopup(), 2200);
+      carregarReservasAdmin();
+    }
+
+    // ADMIN
+    function loginAdmin(){
+      const user = (document.getElementById('adminUser')||{}).value?.trim();
+      const pass = (document.getElementById('adminPass')||{}).value?.trim();
+      const storedPass = localStorage.getItem('adminPassword') || 'admin123';
+      if (user === 'admin' && pass === storedPass) {
+        document.getElementById('adminPanel').style.display = 'block';
+        document.getElementById('loginPanel').style.display = 'none';
+        document.getElementById('adminPix').value = pix || '';
+        document.getElementById('adminPixName').value = pixName || '';
+        document.getElementById('adminPixBank').value = pixBank || '';
+        carregarReservasAdmin();
+      } else alert('Login incorreto.');
+    }
+    function cancelLogin(){ document.getElementById('loginPanel').style.display = 'none'; }
+    function salvarPix(){
+      const nova = (document.getElementById('adminPix')||{}).value?.trim();
+      const nome = (document.getElementById('adminPixName')||{}).value?.trim();
+      const banco = (document.getElementById('adminPixBank')||{}).value?.trim();
+      if (!nova || !nome || !banco) { alert('Preencha todos os campos do Pix.'); return; }
+      localStorage.setItem('pix', nova); localStorage.setItem('pixName', nome); localStorage.setItem('pixBank', banco);
+      pix = nova; pixName = nome; pixBank = banco;
+      document.getElementById('pixKeyFloating').innerText = pix; document.getElementById('pixNameFloating').innerText = pixName; document.getElementById('pixBankFloating').innerText = pixBank;
+      alert('Pix salvo com sucesso.');
+    }
+
+    function switchTab(tabName){
+      activeTab = tabName;
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tabName));
+      carregarReservasAdmin();
+    }
+    function filtrarReservas(){ carregarReservasAdmin(); }
+
+    function carregarReservasAdmin(){
+      const lista = document.getElementById('listaReservas'); if(!lista) return;
+      lista.innerHTML = '';
+      const termo = (document.getElementById('buscaReserva')||{}).value?.trim().toLowerCase() || '';
+      const matchesTerm = r => {
+        if (!termo) return true;
+        if ((r.nome||'').toLowerCase().includes(termo)) return true;
+        if ((r.email||'').toLowerCase().includes(termo)) return true;
+        if ((r.whatsapp||'').toLowerCase().includes(termo)) return true;
+        if (r.numeros && r.numeros.some(n=>n.toString().includes(termo))) return true;
+        return false;
+      };
+      const filtradas = reservas.filter(r=>{
+        if(!matchesTerm(r)) return false;
+        if(activeTab==='espera') return r.status==='reservado';
+        if(activeTab==='pagas') return r.status==='pago';
+        if(activeTab==='estornadas') return r.status==='estornado';
+        if(activeTab==='recusadas') return r.status==='recusado';
+        return true;
+      });
+      if(filtradas.length===0){ lista.innerHTML = '<div style="padding:12px;color:#666">Nenhuma reserva encontrada.</div>'; return; }
+      for (let r of filtradas){
+        const item = document.createElement('div'); item.className='res-item';
+        const left = document.createElement('div'); left.className='res-main';
+        left.innerHTML = `<div><strong>${r.nome}</strong> (${r.email})</div>
+          <div style="font-size:13px;color:#555">WhatsApp: ${r.whatsapp} ${r.cpf? ' • CPF: '+r.cpf : ''}</div>
+          <div style="margin-top:6px">Números: <strong>${r.numeros.join(', ')}</strong></div>
+          <div style="font-size:12px;color:#777;margin-top:6px">Criado: ${new Date(r.createdAt).toLocaleString()}</div>
+          <div style="font-size:12px;color:#777">${r.paymentNotified ? 'Pagamento notificado pelo cliente' : ''}</div>`;
+        const right = document.createElement('div'); right.className='res-actions';
+        if (r.status === 'reservado') {
+          const btnConfirm = document.createElement('button'); btnConfirm.innerText='Confirmar Pagamento'; btnConfirm.onclick=()=>confirmarPagamento(r.id); right.appendChild(btnConfirm);
+        }
+        if (r.status === 'pago') {
+          const spanPaid = document.createElement('span'); spanPaid.style.fontWeight='700'; spanPaid.style.color='#2e7d32'; spanPaid.innerText='Pago'; right.appendChild(spanPaid);
+        }
+        if (r.status !== 'recusado') {
+          const btnRecusar = document.createElement('button'); btnRecusar.innerText='Recusar'; btnRecusar.onclick=()=>recusarReserva(r.id); right.appendChild(btnRecusar);
+        }
+        if (r.status === 'pago') {
+          const btnEstorno = document.createElement('button'); btnEstorno.innerText='Estornar'; btnEstorno.onclick=()=>fazerEstorno(r.id); right.appendChild(btnEstorno);
+        }
+        item.appendChild(left); item.appendChild(right); lista.appendChild(item);
+      }
+    }
+
+    function confirmarPagamento(id){
+      const idx = reservas.findIndex(r=>r.id===id); if(idx===-1){ alert('Reserva não encontrada.'); return; }
+      reservas[idx].status='pago'; reservas[idx].pagamentoConfirmado=true; reservas[idx].paidAt=new Date().toISOString();
+      saveReservas(); atualizarGrid(); carregarReservasAdmin(); alert('Pagamento confirmado.');
+    }
+    function recusarReserva(id){
+      const idx = reservas.findIndex(r=>r.id===id); if(idx===-1){ alert('Reserva não encontrada.'); return; }
+      reservas[idx].status='recusado'; saveReservas(); atualizarGrid(); carregarReservasAdmin(); alert('Reserva recusada e números liberados.');
+    }
+    function fazerEstorno(id){
+      const idx = reservas.findIndex(r=>r.id===id); if(idx===-1){ alert('Reserva não encontrada.'); return; }
+      reservas[idx].status='estornado'; reservas[idx].estornadoAt=new Date().toISOString(); saveReservas(); atualizarGrid(); carregarReservasAdmin(); alert('Estorno realizado e números liberados.');
+    }
+
+    function exportarExcel(){
+      if(!reservas || reservas.length===0){ alert('Não há reservas para exportar.'); return; }
+      const linhas=[]; const cab=['ID','Nome','Email','WhatsApp','CPF','Números','Status','PagamentoConfirmado','PaymentNotified','CriadoEm','PagoEm','EstornadoEm']; linhas.push(cab.join(';'));
+      for (let r of reservas){
+        const row=[ r.id, csvSafe(r.nome), csvSafe(r.email), csvSafe(r.whatsapp), csvSafe(r.cpf||''), '"'+r.numeros.join(',')+'"', r.status, r.pagamentoConfirmado? 'SIM':'NAO', r.paymentNotified? 'SIM':'NAO', r.createdAt||'', r.paidAt||'', r.estornadoAt||'' ];
+        linhas.push(row.join(';'));
+      }
+      const csv = linhas.join('\n'); const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const filename = 'reservas_' + (new Date()).toISOString().slice(0,19).replace(/[:T]/g,'-') + '.xlsx';
+      const link = document.createElement('a'); const url = URL.createObjectURL(blob); link.setAttribute('href', url); link.setAttribute('download', filename); link.style.visibility='hidden'; document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    }
+    function csvSafe(t){ if(!t && t!==0) return ''; return String(t).replace(/(\r\n|\n|\r)/gm,' ').replace(/;/g,','); }
+
+    // expor algumas funções úteis
+    window.appRifa = { reservas, atualizarGrid, exportarExcel, refreshAll: ()=>{ reservas = JSON.parse(localStorage.getItem('reservas')||'[]'); atualizarGrid(); carregarReservasAdmin(); } };
+
+    // bind de funções globais chamadas por HTML (botões inline)
+    window.confirmarReserva = confirmarReserva;
+    window.showLoginPanel = ()=>{ document.getElementById('loginPanel').style.display='block'; document.getElementById('adminPanel').style.display='none'; };
+    window.loginAdmin = loginAdmin;
+    window.cancelLogin = cancelLogin;
+    window.salvarPix = salvarPix;
+    window.copyPixFloating = copyPixFloating;
+    window.notifyPaymentFloating = notifyPaymentFloating;
+    window.closePixPopup = closePixPopup;
+    window.switchTab = switchTab;
+    window.filtrarReservas = filtrarReservas;
+    window.confirmarPagamento = confirmarPagamento;
+    window.recusarReserva = recusarReserva;
+    window.fazerEstorno = fazerEstorno;
+    window.exportarExcel = exportarExcel;
+
+    // init
+    function init(){
+      // preencher pix visível (se houver)
+      document.getElementById('pixKeyFloating').innerText = pix || '---';
+      document.getElementById('pixNameFloating').innerText = pixName || '---';
+      document.getElementById('pixBankFloating').innerText = pixBank || '---';
+      // criar números e renderizar
+      createNumbers();
+      atualizarGrid();
+      // garantir que aba ativa tenha classe
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab==='espera'));
+      // preencher admin inputs
+      const adminPixInput = document.getElementById('adminPix'); if(adminPixInput) adminPixInput.value = pix || '';
+      const adminPixNameInput = document.getElementById('adminPixName'); if(adminPixNameInput) adminPixNameInput.value = pixName || '';
+      const adminPixBankInput = document.getElementById('adminPixBank'); if(adminPixBankInput) adminPixBankInput.value = pixBank || '';
+    }
+
+    // chamar init ao final
+    init();
+
+  })();
+  </script>
 </body>
 </html>
-<script>
-  let adminPassword = "admin123";
-  let masterPassword = "master123";
-
-  const grid = document.getElementById("numbersGrid");
-  let selectedNumbers = [];
-  let reservas = JSON.parse(localStorage.getItem("reservas") || "[]");
-  let pix = localStorage.getItem("pix") || "";
-  let pixName = localStorage.getItem("pixName") || "";
-  let pixBank = localStorage.getItem("pixBank") || "";
-
-  // Criar os 400 números
-  for (let i = 1; i <= 400; i++) {
-    const div = document.createElement("div");
-    div.className = "number available";
-    div.innerText = i;
-    div.onclick = () => toggleNumber(i, div);
-    grid.appendChild(div);
-  }
-
-  function toggleNumber(num, div) {
-    if (div.classList.contains("sold") || div.classList.contains("reserved")) return;
-
-    if (selectedNumbers.includes(num)) {
-      selectedNumbers = selectedNumbers.filter(n => n !== num);
-      div.style.border = "";
-    } else {
-      selectedNumbers.push(num);
-      div.style.border = "2px solid black";
-    }
-
-    document.getElementById("selectedCount").innerText = selectedNumbers.length;
-    document.getElementById("totalPrice").innerText = (selectedNumbers.length * 10).toFixed(2);
-  }
-
-  // Confirmar reserva
-  function confirmarReserva() {
-    const nome = document.getElementById("nome").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const whatsapp = document.getElementById("whatsapp").value.trim();
-    const cpf = document.getElementById("cpf").value.trim();
-
-    if (!nome || !email || !whatsapp || selectedNumbers.length === 0) {
-      alert("Preencha todos os campos e selecione os números.");
-      return;
-    }
-
-    reservas.push({
-      nome,
-      email,
-      whatsapp,
-      cpf,
-      numeros: selectedNumbers,
-      status: "reservado",
-      pagamentoConfirmado: false
-    });
-
-    localStorage.setItem("reservas", JSON.stringify(reservas));
-
-    // Atualiza a interface
-    alert("Reserva registrada com sucesso! Efetue o pagamento.");
-    selectedNumbers.forEach(num => {
-      const numberDiv = Array.from(grid.getElementsByClassName("number")).find(div => parseInt(div.innerText) === num);
-      numberDiv.classList.remove("available");
-      numberDiv.classList.add("reserved");
-    });
-    selectedNumbers = [];
-    location.reload();
-  }
-
-  // Exibir painel de login
-  function showLoginPanel() {
-    document.getElementById("loginPanel").style.display = "block";
-    document.getElementById("adminPanel").style.display = "none";
-  }
-
-  // Login Admin
-  function loginAdmin() {
-    const user = document.getElementById("adminUser").value;
-    const pass = document.getElementById("adminPass").value;
-
-    if ((user === "admin" && pass === adminPassword) || (user === "master" && pass === masterPassword)) {
-      document.getElementById("adminPanel").style.display = "block";
-      document.getElementById("loginPanel").style.display = "none";
-      carregarReservasAdmin();
-    } else {
-      alert("Login incorreto.");
-    }
-  }
-
-  // Carregar reservas para Admin
-  function carregarReservasAdmin() {
-    const lista = document.getElementById("listaReservas");
-    lista.innerHTML = "";
-    reservas.forEach((r, i) => {
-      const li = document.createElement("li");
-      li.innerHTML = `<strong>${r.nome}</strong> - Números: ${r.numeros.join(", ")} - 
-      <button onclick="confirmarPagamento(${i})">Confirmar Pagamento</button>
-      <button onclick="recusarReserva(${i})">Recusar</button>
-      <button onclick="fazerEstorno(${i})">Fazer Estorno</button>`;
-      lista.appendChild(li);
-    });
-  }
-
-  // Confirmar pagamento
-  function confirmarPagamento(index) {
-    reservas[index].pagamentoConfirmado = true;
-    reservas[index].status = "pago";
-    localStorage.setItem("reservas", JSON.stringify(reservas));
-    carregarReservasAdmin();
-  }
-
-  // Recusar reserva
-  function recusarReserva(index) {
-    reservas[index].status = "recusado";
-    localStorage.setItem("reservas", JSON.stringify(reservas));
-    carregarReservasAdmin();
-  }
-
-  // Fazer estorno
-  function fazerEstorno(index) {
-    reservas[index].status = "estornado";
-    localStorage.setItem("reservas", JSON.stringify(reservas));
-    carregarReservasAdmin();
-  }
-
-  // Função para salvar Pix no localStorage
-  function salvarPix() {
-    const pix = document.getElementById("adminPix").value.trim();
-    const nome = document.getElementById("adminPixName").value.trim();
-    const banco = document.getElementById("adminPixBank").value.trim();
-
-    if (!pix || !nome || !banco) {
-      alert("Preencha todos os campos do Pix.");
-      return;
-    }
-
-    localStorage.setItem("pix", pix);
-    localStorage.setItem("pixName", nome);
-    localStorage.setItem("pixBank", banco);
-
-    alert("Pix atualizado com sucesso.");
-  }
-
-  // Função para copiar chave Pix
-  function copyPix() {
-    const pixKey = document.getElementById("pixKey");
-    navigator.clipboard.writeText(pixKey.innerText).then(() => {
-      alert("Chave Pix copiada para a área de transferência.");
-    });
-  }
-
-  // Função de notificação de pagamento
-  function notifyPayment() {
-    alert("Pagamento notificado. Aguardando confirmação do administrador.");
-  }
-</script>
-<script>
-  // Alterar a senha do Admin
-  function showChangePassword() {
-    document.getElementById("changePasswordPanel").style.display = "block";
-    document.getElementById("adminPanel").style.display = "none";
-  }
-
-  function alterarSenha() {
-    const newPassword = document.getElementById("newPassword").value;
-    const confirmPassword = document.getElementById("confirmPassword").value;
-
-    if (newPassword !== confirmPassword) {
-      alert("As senhas não coincidem.");
-      return;
-    }
-
-    adminPassword = newPassword;
-    localStorage.setItem("adminPassword", newPassword);
-    alert("Senha alterada com sucesso.");
-    document.getElementById("changePasswordPanel").style.display = "none";
-    showLoginPanel();
-  }
-
-  function cancelarAlteracao() {
-    document.getElementById("changePasswordPanel").style.display = "none";
-    showLoginPanel();
-  }
-</script>
