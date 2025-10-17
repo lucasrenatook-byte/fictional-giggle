@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rifa - Formatura do Enzo Gabriel</title>
+  <style>
+    :root{
+      --primary:#1e88e5; --bg:#f4f4f4; --card:#fff; --success:#2e7d32;
+      --reserved:#757575; --sold:#d32f2f; --glass-bg: rgba(0,0,0,0.55);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:#111;}
+    header{background:var(--primary);color:#fff;padding:14px 20px;position:relative;text-align:center;}
+    .header-login{position:absolute;right:16px;top:8px;}
+    .container{max-width:980px;margin:18px auto;background:var(--card);padding:18px;border-radius:8px;box-shadow:0 6px 22px rgba(0,0,0,0.08);}
+    .numbers{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:12px 0 18px;}
+    .number{width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:6px;color:#fff;cursor:pointer;user-select:none;font-weight:600;}
+    .available{ background:var(--success); }
+    .reserved{ background:var(--reserved); cursor:not-allowed; }
+    .sold{ background:var(--sold); cursor:not-allowed; }
+    .user-row{ display:flex; gap:10px; flex-wrap:wrap; }
+    .user-row input[type="text"], .user-row input[type="email"]{ flex:1 1 220px; padding:8px; border:1px solid #ddd; border-radius:6px; }
+    .user-actions{ margin-top:8px; }
+    .alert-message{ background:#fff3f3; border-left:4px solid #d32f2f; color:#4a0808; padding:10px; border-radius:6px; margin:10px 0; font-weight:700; text-transform:uppercase; font-size:13px; }
+    .pix-modal { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0.98); min-width: 320px; max-width: 420px; background: var(--card); border-radius: 10px; box-shadow: 0 18px 50px rgba(0,0,0,0.45); z-index: 2001; padding: 18px; display: none; transition: transform .14s ease, opacity .12s ease; }
+    .pix-modal.show{ display:block; transform: translate(-50%, -50%) scale(1); }
+    .pix-row{ margin:10px 0; word-break:break-all; }
+    .pix-actions{ display:flex; gap:8px; justify-content:flex-end; margin-top:10px; }
+    .pix-overlay{ position:fixed; inset:0; background:var(--glass-bg); z-index:2000; display:none; }
+    .pix-overlay.show{ display:block; }
+    .admin-header{ display:flex; gap:10px; align-items:center; justify-content:space-between; margin-bottom:14px; }
+    .tabs{ display:flex; gap:8px; flex-wrap:wrap; }
+    .tab-btn{ padding:8px 12px; border-radius:8px; background:#f3f6fb; border:1px solid #e6eef9; cursor:pointer; font-weight:700; }
+    .tab-btn.active{ background:var(--primary); color:#fff; border-color:var(--primary); }
+    .admin-controls{ display:flex; gap:8px; align-items:center; }
+    .search-box input{ padding:8px; border-radius:8px; border:1px solid #ddd; width:340px; }
+    .reservas-list{ margin-top:12px; max-height:360px; overflow:auto; padding-right:8px; }
+    .res-item{ padding:10px; border:1px solid #eee; border-radius:8px; margin-bottom:8px; display:flex; justify-content:space-between; gap:12px; align-items:center; }
+    .res-main{ font-size:14px; }
+    .res-actions button{ margin-left:6px; }
+    .export-btn{ padding:8px 10px; border-radius:8px; background:#2e7d32; color:#fff; border:none; cursor:pointer; }
+    @media (max-width:720px){ .search-box input{ width:100%; } .admin-header{ flex-direction:column; align-items:flex-start; gap:10px; } }
+  </style>
+</head>
+<body>
+<header>
+  <h1>RIFA — FORMATURA DO ENZO GABRIEL</h1>
+  <div class="header-login"><button onclick="showLoginPanel()">Login Admin</button></div>
+</header>
+
+<!-- PUBLIC -->
+<main class="container" id="publicArea">
+  <p><strong>Selecione seus números - R$10,00 cada</strong></p>
+  <div class="numbers" id="numbersGrid"></div>
+  <div class="alert-message">TODAS AS RESERVAS SÓ SERÃO ACEITAS MEDIANTE CADASTRO E PIX SEREM DA MESMA TITULARIDADE.</div>
+
+  <div id="userForm">
+    <div class="user-row">
+      <input type="text" id="nome" placeholder="Nome completo" />
+      <input type="email" id="email" placeholder="E-mail" />
+      <input type="text" id="whatsapp" placeholder="WhatsApp (somente números)" />
+      <input type="text" id="cpf" placeholder="CPF (opcional)" />
+    </div>
+
+    <p style="margin-top:10px;">
+      <strong>Números selecionados: </strong><span id="selectedCount">0</span>
+      &nbsp;&nbsp;
+      <strong>Valor total: </strong>R$ <span id="totalPrice">0,00</span>
+    </p>
+
+    <div class="user-actions">
+      <button id="confirmarBtn" onclick="confirmarReserva()">Confirmar Reserva</button>
+    </div>
+  </div>
+</main>
+
+<!-- PIX POPUP -->
+<div class="pix-overlay" id="pixOverlay" onclick="closePixPopup()"></div>
+<div class="pix-modal" id="pixPopup" role="dialog" aria-modal="true" aria-labelledby="pixTitle">
+  <h3 id="pixTitle">Chave Pix para pagamento</h3>
+  <div class="pix-row">
+    <div><strong>Chave:</strong></div>
+    <div id="pixKeyFloating" style="margin-top:6px;font-weight:700;font-size:16px">---</div>
+    <div style="margin-top:8px;"><small id="pixNameFloating">---</small> • <small id="pixBankFloating">---</small></div>
+  </div>
+  <div style="margin-top:10px;font-size:14px;"><em>Após copiar e pagar, clique em "Já fiz o pagamento".</em></div>
+  <div class="pix-actions">
+    <button onclick="copyPixFloating()">Copiar Pix</button>
+    <button onclick="notifyPaymentFloating()">Já fiz o pagamento</button>
+    <button onclick="closePixPopup()" style="background:#eee;color:#111;border:1px solid #ddd;">Fechar</button>
+  </div>
+  <div id="pixThanks" style="display:none;margin-top:12px;font-weight:700;color:var(--success);">Boa sorte e obrigado por contribuir com essa causa 💚</div>
+</div>
+
+<!-- LOGIN ADMIN -->
+<section class="container" id="loginPanel" style="display:none;">
+  <h2>Login do Administrador</h2>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <input type="text" id="adminUser" placeholder="Usuário" />
+    <input type="password" id="adminPass" placeholder="Senha" />
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button onclick="loginAdmin()">Entrar</button>
+      <button onclick="cancelLogin()">Cancelar</button>
+    </div>
+  </div>
+</section>
+
+<!-- ADMIN -->
+<section class="container" id="adminPanel" style="display:none;">
+  <div class="admin-header">
+    <div class="tabs" role="tablist" aria-label="Abas de reservas">
+      <button class="tab-btn active" data-tab="espera" onclick="switchTab('espera')">Em Espera</button>
+      <button class="tab-btn" data-tab="pagas" onclick="switchTab('pagas')">Pagas</button>
+      <button class="tab-btn" data-tab="estornadas" onclick="switchTab('estornadas')">Estornadas</button>
+      <button class="tab-btn" data-tab="recusadas" onclick="switchTab('recusadas')">Recusadas</button>
+    </div>
+
+    <div class="admin-controls">
+      <div class="search-box"><input type="text" id="buscaReserva" placeholder="Buscar..." onkeyup="filtrarReservas()" /></div>
+      <div style="display:flex;gap:8px;align-items:center;"><button class="export-btn" onclick="exportarExcel()">📤 Exportar</button></div>
+    </div>
+  </div>
+
+  <div style="margin-top:12px;">
+    <p style="margin:8px 0;"><strong>Configuração Pix</strong></p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <input type="text" id="adminPix" placeholder="Chave Pix" style="width:280px" />
+      <input type="text" id="adminPixName" placeholder="Nome do recebedor" style="width:220px" />
+      <input type="text" id="adminPixBank" placeholder="Banco" style="width:160px" />
+      <button onclick="salvarPix()">Salvar Pix</button>
+    </div>
+  </div>
+
+  <div class="stats" style="margin-top:10px;">
+    <span id="totalVendidos">Vendidos: 0</span> | 
+    <span id="totalDisponiveis">Disponíveis: 0</span>
+  </div>
+
+  <div class="reservas-list" id="listaReservas"></div>
+</section>
+
+<footer style="text-align:center;margin:24px 0;font-weight:700;">Dúvidas? <a href="https://wa.me/+5581989681443" target="_blank">WhatsApp</a></footer>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAq9-HwJc7n9xFXCpaMdKoOYwWpAftyegY",
+  authDomain: "rifa-enzo.firebaseapp.com",
+  projectId: "rifa-enzo",
+  storageBucket: "rifa-enzo.firebasestorage.app",
+  messagingSenderId: "157885375805",
+  appId: "1:157885375805:web:a375840d37ad25d2cc9154"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ELEMENTOS
+const gridEl = document.getElementById('numbersGrid');
+const selectedCountEl = document.getElementById('selectedCount');
+const totalPriceEl = document.getElementById('totalPrice');
+const totalVendidosEl = document.getElementById('totalVendidos');
+const totalDisponiveisEl = document.getElementById('totalDisponiveis');
+
+let selectedNumbers = [];
+let reservas = [];
+let pix = '';
+let pixName = '';
+let pixBank = '';
+let activeTab = 'espera';
+
+// --- FUNÇÕES NÚMEROS ---
+function createNumbers(){
+  gridEl.innerHTML='';
+  for(let i=1;i<=400;i++){
+    const div = document.createElement('div');
+    div.className='number available';
+    div.innerText=i;
+    div.dataset.num=i;
+    div.onclick=()=>toggleNumber(i,div);
+    gridEl.appendChild(div);
+  }
+}
+
+function toggleNumber(num,div){
+  if(div.classList.contains('reserved') || div.classList.contains('sold')) return;
+  if(selectedNumbers.includes(num)){ selectedNumbers = selectedNumbers.filter(n=>n!==num); div.style.border=''; }
+  else{ selectedNumbers.push(num); div.style.border='2px solid #111'; }
+  selectedCountEl.innerText = selectedNumbers.length;
+  totalPriceEl.innerText = (selectedNumbers.length*10).toFixed(2);
+}
+
+// --- RESERVAS ---
+async function confirmarReserva(){
+  const nome = document.getElementById('nome').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const whatsapp = document.getElementById('whatsapp').value.trim();
+  const cpf = document.getElementById('cpf').value.trim();
+  if(!nome || !email || !whatsapp || selectedNumbers.length===0){ alert('Preencha todos os campos e selecione ao menos 1 número.'); return; }
+  await db.collection('reservas').add({
+    nome, email, whatsapp, cpf, numeros:selectedNumbers.sort((a,b)=>a-b),
+    status:'reservado', pagamentoConfirmado:false, paymentNotified:false,
+    createdAt:new Date().toISOString()
+  });
+  selectedNumbers=[];
+  selectedCountEl.innerText='0'; totalPriceEl.innerText='0,00';
+  alert('Reserva registrada! Confira o Pix para pagamento.');
+  showPixPopup();
+}
+
+// --- PIX ---
+function showPixPopup(){
+  document.getElementById('pixKeyFloating').innerText=pix||'---';
+  document.getElementById('pixNameFloating').innerText=pixName||'---';
+  document.getElementById('pixBankFloating').innerText=pixBank||'---';
+  document.getElementById('pixOverlay').classList.add('show');
+  document.getElementById('pixPopup').classList.add('show');
+  document.getElementById('pixThanks').style.display='none';
+}
+function closePixPopup(){ document.getElementById('pixOverlay').classList.remove('show'); document.getElementById('pixPopup').classList.remove('show'); }
+function copyPixFloating(){ navigator.clipboard.writeText(pix).then(()=>alert('Pix copiado!')); }
+async function notifyPaymentFloating(){
+  alert('Aguarde confirmação do administrador.');
+}
+
+// --- ADMIN PIX ---
+async function salvarPix(){
+  pix = document.getElementById('adminPix').value.trim();
+  pixName = document.getElementById('adminPixName').value.trim();
+  pixBank = document.getElementById('adminPixBank').value.trim();
+  if(!pix||!pixName||!pixBank){ alert('Preencha todos os campos do Pix'); return; }
+  await db.collection('config').doc('pix').set({pix,pixName,pixBank});
+  alert('Pix salvo e atualizado para todos os clientes.');
+}
+
+// --- LOGIN ADMIN ---
+function showLoginPanel(){ document.getElementById('loginPanel').style.display='block'; document.getElementById('adminPanel').style.display='none'; }
+function cancelLogin(){ document.getElementById('loginPanel').style.display='none'; }
+function loginAdmin(){
+  const u=document.getElementById('adminUser').value.trim();
+  const p=document.getElementById('adminPass').value.trim();
+  if(u==='admin'&&p==='admin123'){ document.getElementById('loginPanel').style.display='none'; document.getElementById('adminPanel').style.display='block'; carregarPix(); }
+  else alert('Login incorreto.');
+}
+
+// --- ABAS ---
+function switchTab(tab){ activeTab=tab; document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab)); }
+
+// --- FILTRO ---
+function filtrarReservas(){ renderAdminReservas(); }
+
+// --- EXPORT ---
+function exportarExcel(){ alert('Use Firestore para exportar reservas via console.'); }
+
+// --- FUNÇÕES FIRESTORE ---
+function carregarPix(){
+  db.collection('config').doc('pix').get().then(doc=>{
+    if(doc.exists){ const d=doc.data(); pix=d.pix; pixName=d.pixName; pixBank=d.pixBank;
+      document.getElementById('adminPix').value=pix; document.getElementById('adminPixName').value=pixName; document.getElementById('adminPixBank').value=pixBank;
+    }
+  });
+}
+
+// Atualização em tempo real de reservas
+db.collection('reservas').orderBy('createdAt','asc').onSnapshot(snapshot=>{
+  reservas = snapshot.docs.map(doc=>({id:doc.id,...doc.data()}));
+  atualizarGrid(reservas);
+  renderAdminReservas();
+});
+
+// Render admin
+function renderAdminReservas(){
+  const lista = document.getElementById('listaReservas');
+  lista.innerHTML='';
+  const termo = (document.getElementById('buscaReserva')||{}).value.trim().toLowerCase();
+  const filtradas = reservas.filter(r=>{
+    if(termo && ![r.nome,r.email,r.whatsapp].some(f=>f.toLowerCase().includes(termo)) && !r.numeros.some(n=>n.toString().includes(termo))) return false;
+    if(activeTab==='espera') return r.status==='reservado';
+    if(activeTab==='pagas') return r.status==='pago';
+    if(activeTab==='estornadas') return r.status==='estornado';
+    if(activeTab==='recusadas') return r.status==='recusado';
+    return true;
+  });
+  if(filtradas.length===0){ lista.innerHTML='<div style="padding:12px;color:#666">Nenhuma reserva encontrada.</div>'; return; }
+  filtradas.forEach(r=>{
+    const item=document.createElement('div'); item.className='res-item';
+    const left=document.createElement('div'); left.className='res-main';
+    left.innerHTML=`<div><strong>${r.nome}</strong> (${r.email})</div>
+      <div style="font-size:13px;color:#555">WhatsApp: ${r.whatsapp} ${r.cpf? ' • CPF: '+r.cpf : ''}</div>
+      <div style="margin-top:6px">Números: <strong>${r.numeros.join(', ')}</strong></div>
+      <div style="font-size:12px;color:#777;margin-top:6px">Criado: ${new Date(r.createdAt).toLocaleString()}</div>
+      <div style="font-size:12px;color:#777">${r.paymentNotified?'Pagamento notificado pelo cliente':''}</div>`;
+    const right=document.createElement('div'); right.className='res-actions';
+    if(r.status==='reservado'){ const btn=document.createElement('button'); btn.innerText='Confirmar Pagamento'; btn.onclick=()=>db.collection('reservas').doc(r.id).update({status:'pago',pagamentoConfirmado:true,paidAt:new Date().toISOString()}); right.appendChild(btn);}
+    if(r.status==='pago'){ const span=document.createElement('span'); span.style.color='#2e7d32'; span.innerText='Pago'; right.appendChild(span);}
+    if(r.status!=='recusado'){ const btn=document.createElement('button'); btn.innerText='Recusar'; btn.onclick=()=>db.collection('reservas').doc(r.id).update({status:'recusado'}); right.appendChild(btn);}
+    if(r.status==='pago'){ const btn=document.createElement('button'); btn.innerText='Estornar'; btn.onclick=()=>db.collection('reservas').doc(r.id).update({status:'estornado',estornadoAt:new Date().toISOString()}); right.appendChild(btn);}
+    item.appendChild(left); item.appendChild(right); lista.appendChild(item);
+  });
+}
+
+// Atualizar grid de números
+function atualizarGrid(reservas){
+  const divs=gridEl.getElementsByClassName('number');
+  for(let div of divs) div.className='number available';
+  let vendidos=0;
+  reservas.forEach(r=>{
+    r.numeros.forEach(num=>{
+      const div=divs[num-1]; if(!div) return;
+      if(r.status==='reservado') div.className='number reserved';
+      else if(r.status==='pago'){ div.className='number sold'; vendidos++; }
+      else if(r.status==='estornado'||r.status==='recusado') div.className='number available';
+    });
+  });
+  totalVendidosEl.innerText=`Vendidos: ${vendidos}`;
+  totalDisponiveisEl.innerText=`Disponíveis: ${400-vendidos}`;
+}
+
+// INIT
+createNumbers();
+carregarPix();
+
+window.confirmarReserva=confirmarReserva;
+window.copyPixFloating=copyPixFloating;
+window.notifyPaymentFloating=notifyPaymentFloating;
+window.closePixPopup=closePixPopup;
+window.salvarPix=salvarPix;
+window.showLoginPanel=showLoginPanel;
+window.cancelLogin=cancelLogin;
+window.loginAdmin=loginAdmin;
+window.switchTab=switchTab;
+window.filtrarReservas=filtrarReservas;
+window.exportarExcel=exportarExcel;
+
+</script>
+</body>
+</html>
