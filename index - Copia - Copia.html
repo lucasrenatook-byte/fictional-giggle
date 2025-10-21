@@ -137,9 +137,9 @@ header{background:var(--primary);color:#fff;padding:14px 20px;position:relative;
 <!-- SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
 <script>
-  const supabaseUrl = https://nuutyifdlfydajybyiou.supabase.co
-  const supabaseKey = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51dXR5aWZkbGZ5ZGFqeWJ5aW91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEwNjExMTcsImV4cCI6MjA3NjYzNzExN30.5WW7TFsUi7BmrGBduYhIoGq5EQd5uxYctDd6ZuJmgZE
-  const supabase = Supabase.createClient(supabaseUrl, supabaseKey);
+  const supabaseUrl = "https://nuutyifdlfydajybyiou.supabase.co";
+  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51dXR5aWZkbGZ5ZGFqeWJ5aW91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEwNjExMTcsImV4cCI6MjA3NjYzNzExN30.5WW7TFsUi7BmrGBduYhIoGq5EQd5uxYctDd6ZuJmgZE";
+  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
   const gridEl = document.getElementById('numbersGrid');
   const selectedCountEl = document.getElementById('selectedCount');
