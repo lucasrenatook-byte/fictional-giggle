@@ -9,9 +9,9 @@
   --primary:#1e88e5; --bg:#f4f4f4; --card:#fff; --success:#2e7d32;
   --reserved:#757575; --sold:#d32f2f; --glass-bg: rgba(0,0,0,0.55);
 }
-*{box-sizing:border-box;}
+*{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:#111;}
-header{background:var(--primary);color:#fff;padding:14px 20px;text-align:center;position:relative;}
+header{background:var(--primary);color:#fff;padding:14px 20px;position:relative;text-align:center;}
 .header-login{position:absolute;right:16px;top:8px;}
 .container{max-width:980px;margin:18px auto;background:var(--card);padding:18px;border-radius:8px;box-shadow:0 6px 22px rgba(0,0,0,0.08);}
 .numbers{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:12px 0 18px;}
@@ -19,15 +19,28 @@ header{background:var(--primary);color:#fff;padding:14px 20px;text-align:center;
 .available{ background:var(--success); }
 .reserved{ background:var(--reserved); cursor:not-allowed; }
 .sold{ background:var(--sold); cursor:not-allowed; }
-.user-row{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+.user-row{ display:flex; gap:10px; flex-wrap:wrap; }
 .user-row input[type="text"], .user-row input[type="email"]{ flex:1 1 220px; padding:8px; border:1px solid #ddd; border-radius:6px; }
 .user-actions{ margin-top:8px; }
-.alert-message{ background:#fff3f3; border-left:4px solid #d32f2f; color:#4a0808; padding:10px; border-radius:6px; margin:10px 0; font-weight:700; font-size:13px; }
+.alert-message{ background:#fff3f3; border-left:4px solid #d32f2f; color:#4a0808; padding:10px; border-radius:6px; margin:10px 0; font-weight:700; text-transform:uppercase; font-size:13px; }
 .pix-modal { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0.98); min-width: 320px; max-width: 420px; background: var(--card); border-radius: 10px; box-shadow: 0 18px 50px rgba(0,0,0,0.45); z-index: 2001; padding: 18px; display: none; transition: transform .14s ease, opacity .12s ease; }
 .pix-modal.show{ display:block; transform: translate(-50%, -50%) scale(1); }
+.pix-row{ margin:10px 0; word-break:break-all; }
+.pix-actions{ display:flex; gap:8px; justify-content:flex-end; margin-top:10px; }
 .pix-overlay{ position:fixed; inset:0; background:var(--glass-bg); z-index:2000; display:none; }
 .pix-overlay.show{ display:block; }
-@media (max-width:720px){ .user-row input{ flex:1 1 100%; } }
+.admin-header{ display:flex; gap:10px; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.tabs{ display:flex; gap:8px; flex-wrap:wrap; }
+.tab-btn{ padding:8px 12px; border-radius:8px; background:#f3f6fb; border:1px solid #e6eef9; cursor:pointer; font-weight:700; }
+.tab-btn.active{ background:var(--primary); color:#fff; border-color:var(--primary); }
+.admin-controls{ display:flex; gap:8px; align-items:center; }
+.search-box input{ padding:8px; border-radius:8px; border:1px solid #ddd; width:340px; }
+.reservas-list{ margin-top:12px; max-height:360px; overflow:auto; padding-right:8px; }
+.res-item{ padding:10px; border:1px solid #eee; border-radius:8px; margin-bottom:8px; display:flex; justify-content:space-between; gap:12px; align-items:center; }
+.res-main{ font-size:14px; }
+.res-actions button{ margin-left:6px; }
+.export-btn{ padding:8px 10px; border-radius:8px; background:#2e7d32; color:#fff; border:none; cursor:pointer; }
+@media (max-width:720px){ .search-box input{ width:100%; } .admin-header{ flex-direction:column; align-items:flex-start; gap:10px; } }
 </style>
 </head>
 <body>
@@ -39,7 +52,7 @@ header{background:var(--primary);color:#fff;padding:14px 20px;text-align:center;
 <main class="container" id="publicArea">
   <p><strong>Selecione seus números - R$10,00 cada</strong></p>
   <div class="numbers" id="numbersGrid"></div>
-  <div class="alert-message">TODAS AS RESERVAS SÓ SERÃO ACEITAS MEDIANTE CADASTRO E PIX SEREM DA MESMA TITULARIDADE.</div>
+  <div class="alert-message">TODAS AS RESERVAS SÓ SERÃO ACEITAS MEDIANTE CADASTRO E PIX DA MESMA TITULARIDADE.</div>
 
   <div id="userForm">
     <div class="user-row">
@@ -79,9 +92,10 @@ header{background:var(--primary);color:#fff;padding:14px 20px;text-align:center;
     <button onclick="notifyPaymentFloating()">Já fiz o pagamento</button>
     <button onclick="closePixPopup()" style="background:#eee;color:#111;border:1px solid #ddd;">Fechar</button>
   </div>
-  <div style="margin-top:12px;font-weight:700;color:#d32f2f;">"ATENÇÃO: ANTES DE FAZER O PIX CONFIRA SE AS INFORMAÇÕES SÃO AS MESMAS ACIMA"</div>
-  <div id="pixThanks" style="display:none;margin-top:12px;font-weight:700;color:var(--success);">Boa sorte e obrigado por contribuir com essa causa 💚</div>
+  <div style="margin-top:12px;font-weight:700;color:#d32f2f;">"ATENÇÃO: CONFIRA SE AS INFORMAÇÕES SÃO CORRETAS"</div>
+  <div id="pixThanks" style="display:none;margin-top:12px;font-weight:700;color:var(--success);">Boa sorte e obrigado por contribuir 💚</div>
 </div>
+
 <!-- LOGIN ADMIN -->
 <section class="container" id="loginPanel" style="display:none;">
   <h2>Login do Administrador</h2>
@@ -121,35 +135,35 @@ header{background:var(--primary);color:#fff;padding:14px 20px;text-align:center;
 <footer style="text-align:center;margin:24px 0;font-weight:700;">Dúvidas? <a href="https://wa.me/+5581989681443" target="_blank">WhatsApp</a></footer>
 
 <!-- SUPABASE -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
 <script>
-  // CONFIGURAÇÃO SUPABASE
-  
-import { createClient } from '@supabase/supabase-js'
-const supabaseUrl = 'https://nuutyifdlfydajybyiou.supabase.co'
-const supabaseKey = process.env.SUPABASE_KEY
-const supabase = createClient(supabaseUrl, supabaseKey)
+  const supabaseUrl = https://nuutyifdlfydajybyiou.supabase.co
+  const supabaseKey = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51dXR5aWZkbGZ5ZGFqeWJ5aW91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEwNjExMTcsImV4cCI6MjA3NjYzNzExN30.5WW7TFsUi7BmrGBduYhIoGq5EQd5uxYctDd6ZuJmgZE
+  const supabase = Supabase.createClient(supabaseUrl, supabaseKey);
 
-  const numbersGrid = document.getElementById('numbersGrid');
+  const gridEl = document.getElementById('numbersGrid');
   const selectedCountEl = document.getElementById('selectedCount');
   const totalPriceEl = document.getElementById('totalPrice');
+  const totalVendidosEl = document.getElementById('totalVendidos');
+  const totalDisponiveisEl = document.getElementById('totalDisponiveis');
+
   let selectedNumbers = [];
   let reservas = [];
+  let pix = '81996487101';
+  let pixName = 'NAYANNE THAMIRES SANTOS SILVA';
+  let pixBank = 'NUBANK';
   let activeTab = 'espera';
-  const pix = '81996487101';
-  const pixName = 'NAYANNE THAMIRES SANTOS SILVA';
-  const pixBank = 'NUBANK';
 
-  // CRIA GRID 400 NÚMEROS
+  // Criar grid de números
   function createNumbers(){
-    numbersGrid.innerHTML='';
+    gridEl.innerHTML='';
     for(let i=1;i<=400;i++){
       const div = document.createElement('div');
       div.className='number available';
       div.innerText=i;
       div.dataset.num=i;
       div.onclick=()=>toggleNumber(i,div);
-      numbersGrid.appendChild(div);
+      gridEl.appendChild(div);
     }
   }
 
@@ -166,42 +180,67 @@ const supabase = createClient(supabaseUrl, supabaseKey)
     totalPriceEl.innerText = (selectedNumbers.length*10).toFixed(2);
   }
 
-  // CONFIRMAR RESERVA
   async function confirmarReserva(){
     const nome = document.getElementById('nome').value.trim();
     const email = document.getElementById('email').value.trim();
     const whatsapp = document.getElementById('whatsapp').value.trim();
     const cpf = document.getElementById('cpf').value.trim();
-
+    
     if(!nome || !email || !whatsapp || selectedNumbers.length===0){ 
       alert('Preencha todos os campos e selecione ao menos 1 número.'); 
       return; 
     }
-
+    
     showPixPopup();
 
     try {
-      const { data, error } = await supabase
-        .from('reservas')
-        .insert([{
-          nome, email, whatsapp, cpf,
-          numeros: selectedNumbers.sort((a,b)=>a-b),
-          status:'reservado',
-          paymentNotified:false,
-          created_at: new Date().toISOString()
-        }]);
-
+      const { error } = await supabase.from('reservas').insert([{
+        nome, email, whatsapp, cpf,
+        numeros: selectedNumbers.sort((a,b)=>a-b),
+        status:'reservado', paymentNotified:false, created_at: new Date().toISOString()
+      }]);
       if(error) throw error;
       selectedNumbers=[];
-      selectedCountEl.innerText='0';
+      selectedCountEl.innerText='0'; 
       totalPriceEl.innerText='0,00';
     } catch(err){
-      console.error(err);
       alert('Erro ao registrar reserva.');
+      console.error(err);
     }
   }
 
-  // POPUP PIX
+  // Supabase real-time
+  supabase.channel('realtime_reservas')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'reservas' }, payload => {
+      carregarReservas();
+    })
+    .subscribe();
+
+  async function carregarReservas(){
+    const { data, error } = await supabase.from('reservas').select('*');
+    if(error){ console.error(error); return; }
+    reservas = data;
+    atualizarGrid();
+    renderAdminReservas();
+  }
+
+  function atualizarGrid(){
+    const divs=gridEl.getElementsByClassName('number');
+    for(let div of divs) div.className='number available';
+    let vendidos=0;
+    reservas.forEach(r=>{
+      r.numeros.forEach(num=>{
+        const div=divs[num-1]; if(!div) return;
+        if(r.status==='reservado') div.className='number reserved';
+        else if(r.status==='pago'){ div.className='number sold'; vendidos++; }
+        else if(r.status==='estornado'||r.status==='recusado') div.className='number available';
+      });
+    });
+    totalVendidosEl.innerText=`Vendidos: ${vendidos}`;
+    totalDisponiveisEl.innerText=`Disponíveis: ${400-vendidos}`;
+  }
+
+  // PIX
   function showPixPopup(){
     document.getElementById('pixKeyFloating').innerText = pix;
     document.getElementById('pixNameFloating').innerText = pixName;
@@ -217,7 +256,7 @@ const supabase = createClient(supabaseUrl, supabaseKey)
   function copyPixFloating(){ navigator.clipboard.writeText(pix).then(()=>alert('Pix copiado!')); }
   function notifyPaymentFloating(){ alert('Aguarde confirmação do administrador.'); }
 
-  // LOGIN ADMIN
+  // Admin
   function showLoginPanel(){ document.getElementById('loginPanel').style.display='block'; document.getElementById('adminPanel').style.display='none'; }
   function cancelLogin(){ document.getElementById('loginPanel').style.display='none'; }
   function loginAdmin(){
@@ -228,50 +267,9 @@ const supabase = createClient(supabaseUrl, supabaseKey)
       document.getElementById('adminPanel').style.display='block'; 
     } else alert('Login incorreto.');
   }
-
-  // ABAS ADMIN
-  function switchTab(tab){
-    activeTab=tab; 
-    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
-    renderAdminReservas();
-  }
-
-  // FILTRAR RESERVAS
+  function switchTab(tab){ activeTab=tab; document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab)); }
   function filtrarReservas(){ renderAdminReservas(); }
-
-  // EXPORTAR (placeholder)
-  function exportarExcel(){ alert('Use Supabase Studio para exportar reservas.'); }
-
-  // ATUALIZA GRID EM TEMPO REAL
-  supabase.from('reservas').on('INSERT', payload=>{
-    reservas.push(payload.new);
-    atualizarGrid();
-    renderAdminReservas();
-  }).subscribe();
-
-  supabase.from('reservas').on('UPDATE', payload=>{
-    const idx = reservas.findIndex(r=>r.id===payload.new.id);
-    if(idx>=0) reservas[idx]=payload.new;
-    atualizarGrid();
-    renderAdminReservas();
-  }).subscribe();
-
-  // FUNÇÕES DE RENDER GRID E ADMIN
-  function atualizarGrid(){
-    const divs = numbersGrid.getElementsByClassName('number');
-    for(let div of divs) div.className='number available';
-    let vendidos=0;
-    reservas.forEach(r=>{
-      r.numeros.forEach(num=>{
-        const div = divs[num-1]; if(!div) return;
-        if(r.status==='reservado') div.className='number reserved';
-        else if(r.status==='pago'){ div.className='number sold'; vendidos++; }
-        else if(r.status==='estornado'||r.status==='recusado') div.className='number available';
-      });
-    });
-    document.getElementById('totalVendidos').innerText=`Vendidos: ${vendidos}`;
-    document.getElementById('totalDisponiveis').innerText=`Disponíveis: ${400-vendidos}`;
-  }
+  function exportarExcel(){ alert('Use Supabase Console para exportar reservas.'); }
 
   function renderAdminReservas(){
     const lista = document.getElementById('listaReservas');
@@ -292,7 +290,8 @@ const supabase = createClient(supabaseUrl, supabaseKey)
       left.innerHTML=`<div><strong>${r.nome}</strong> (${r.email})</div>
         <div style="font-size:13px;color:#555">WhatsApp: ${r.whatsapp} ${r.cpf? ' • CPF: '+r.cpf : ''}</div>
         <div style="margin-top:6px">Números: <strong>${r.numeros.join(', ')}</strong></div>
-        <div style="font-size:12px;color:#777;margin-top:6px">Criado: ${new Date(r.created_at).toLocaleString()}</div>`;
+        <div style="font-size:12px;color:#777;margin-top:6px">Criado: ${new Date(r.created_at).toLocaleString()}</div>
+        <div style="font-size:12px;color:#777">${r.paymentNotified?'Pagamento notificado pelo cliente':''}</div>`;
       const right=document.createElement('div'); right.className='res-actions';
       if(r.status==='reservado'){ const btn=document.createElement('button'); btn.innerText='Confirmar Pagamento'; btn.onclick=()=>supabase.from('reservas').update({status:'pago'}).eq('id',r.id); right.appendChild(btn);}
       if(r.status==='pago'){ const span=document.createElement('span'); span.style.color='#2e7d32'; span.innerText='Pago'; right.appendChild(span);}
@@ -302,8 +301,8 @@ const supabase = createClient(supabaseUrl, supabaseKey)
     });
   }
 
-  // INIT
   createNumbers();
+  carregarReservas();
 
   window.confirmarReserva=confirmarReserva;
   window.copyPixFloating=copyPixFloating;
